@@ -26,7 +26,7 @@
   {
     "ID_Caso": "11470",
     "Tipo": "Cond. NK",
-    "Descripcion": "Romper C373 (> 0) con 0",
+    "Descripcion": "Fallo forzado en C373 (Bloque AND #1)",
     "Resultado_Esperado": "No cumple Condición",
     "C373": 0,
     "C19": 1
@@ -34,31 +34,15 @@
   {
     "ID_Caso": "11471",
     "Tipo": "Cond. NK",
-    "Descripcion": "Romper C19 (> 0) con 0",
+    "Descripcion": "Fallo total del Grupo OR (C19, C1111, C1641)",
     "Resultado_Esperado": "No cumple Condición",
     "C373": 1,
-    "C19": 0
-  },
-  {
-    "ID_Caso": "11472",
-    "Tipo": "Cond. NK",
-    "Descripcion": "Romper C1111 (> 0) con 0",
-    "Resultado_Esperado": "No cumple Condición",
-    "C373": 1,
-    "C19": 1,
-    "C1111": 0
-  },
-  {
-    "ID_Caso": "11473",
-    "Tipo": "Cond. NK",
-    "Descripcion": "Romper C1641 (> 0) con 0",
-    "Resultado_Esperado": "No cumple Condición",
-    "C373": 1,
-    "C19": 1,
+    "C19": 0,
+    "C1111": 0,
     "C1641": 0
   },
   {
-    "ID_Caso": "11474",
+    "ID_Caso": "11472",
     "Tipo": "CHI",
     "Descripcion": "Verificar cálculo de CHI",
     "Resultado_Esperado": "0.0",
@@ -66,7 +50,7 @@
     "C19": 1
   },
   {
-    "ID_Caso": "11475",
+    "ID_Caso": "11473",
     "Tipo": "Omega",
     "Descripcion": "Verificar cálculo de Omega",
     "Resultado_Esperado": "0.0",
@@ -74,7 +58,7 @@
     "C19": 1
   },
   {
-    "ID_Caso": "11476",
+    "ID_Caso": "11474",
     "Tipo": "Alfa",
     "Descripcion": "Verificar cálculo de Alfa",
     "Resultado_Esperado": "0",
@@ -82,7 +66,7 @@
     "C19": 1
   },
   {
-    "ID_Caso": "11477",
+    "ID_Caso": "11475",
     "Tipo": "VALOR_1",
     "Descripcion": "Verificar cálculo de VALOR_1",
     "Resultado_Esperado": "0",
@@ -90,7 +74,7 @@
     "C19": 1
   },
   {
-    "ID_Caso": "11478",
+    "ID_Caso": "11476",
     "Tipo": "VALOR_2",
     "Descripcion": "Verificar cálculo de VALOR_2",
     "Resultado_Esperado": "0",
@@ -98,7 +82,7 @@
     "C19": 1
   },
   {
-    "ID_Caso": "11479",
+    "ID_Caso": "11477",
     "Tipo": "KAPPA",
     "Descripcion": "Verificar cálculo de KAPPA",
     "Resultado_Esperado": "0.0",
@@ -106,7 +90,7 @@
     "C19": 1
   },
   {
-    "ID_Caso": "11480",
+    "ID_Caso": "11478",
     "Tipo": "RHO",
     "Descripcion": "Verificar cálculo de RHO",
     "Resultado_Esperado": "0.0",
@@ -114,7 +98,7 @@
     "C19": 1
   },
   {
-    "ID_Caso": "11481",
+    "ID_Caso": "11479",
     "Tipo": "OMICRON",
     "Descripcion": "Verificar cálculo de OMICRON",
     "Resultado_Esperado": "0",
@@ -122,7 +106,7 @@
     "C19": 1
   },
   {
-    "ID_Caso": "11482",
+    "ID_Caso": "11480",
     "Tipo": "EPSILON",
     "Descripcion": "Verificar cálculo de EPSILON",
     "Resultado_Esperado": "0",
@@ -130,7 +114,7 @@
     "C19": 1
   },
   {
-    "ID_Caso": "11483",
+    "ID_Caso": "11481",
     "Tipo": "OMEGA",
     "Descripcion": "Verificar cálculo de OMEGA",
     "Resultado_Esperado": "0",
@@ -138,7 +122,7 @@
     "C19": 1
   },
   {
-    "ID_Caso": "11484",
+    "ID_Caso": "11482",
     "Tipo": "Norma 1",
     "Descripcion": "Verificar cumplimiento de Norma",
     "Resultado_Esperado": "DIF=Calc DISC=Calc",
@@ -146,7 +130,7 @@
     "C19": 1,
     "P31": 1500.0,
     "P520": 53200.0,
-    "P704": 0.05,
+    "P704": 8.05,
     "P02": 10.0,
     "P11": 2.0,
     "P345": 100.0,
@@ -162,7 +146,7 @@
     "OMEGA": 0
   },
   {
-    "ID_Caso": "11485",
+    "ID_Caso": "11483",
     "Tipo": "Norma NK",
     "Descripcion": "Verificar No Cumplimiento",
     "Resultado_Esperado": "No cumple Norma",
@@ -170,7 +154,7 @@
     "C19": 1,
     "P31": 1500.0,
     "P520": 53200.0,
-    "P704": 0.05,
+    "P704": 8.05,
     "P02": 10.0,
     "P11": 2.0,
     "P345": 100.0,

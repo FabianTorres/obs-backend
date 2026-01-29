@@ -49,7 +49,7 @@ class ScenarioBuilder:
 
         return self.scenarios
 
-    # --- LÓGICA DE EXPANSIÓN COMBINATORIA (NUEVO) ---
+    # --- LÓGICA DE EXPANSIÓN COMBINATORIA  ---
 
     def _generate_ok_combinations(self, logic_block):
         """
@@ -160,27 +160,75 @@ class ScenarioBuilder:
         return {k: v for k, v in current_inputs.items() if k not in self.parameters}
 
     def _generate_nk_cases(self, predicates, golden_inputs):
-        """Genera casos NK rompiendo un predicado a la vez"""
-        context = {**golden_inputs, **self.parameters}
-        for p in predicates:
-            target = p['target']
-            op = p['op']
-            ref_value = self.math_engine.evaluate(p['right_tree'], context)
-            
-            bad_inputs = golden_inputs.copy()
-            broken_val = None
-            
-            # Invertimos lógica
-            if op == ">": broken_val = ref_value
-            elif op == ">=": broken_val = ref_value - 1
-            elif op == "<": broken_val = ref_value
-            elif op == "<=": broken_val = ref_value + 1
-            elif op == "=": broken_val = ref_value + 1
-            
-            if broken_val is not None:
-                bad_inputs[target] = broken_val
-                self._add_case("Cond. NK", f"Romper {target} ({op} {ref_value}) con {broken_val}", bad_inputs, "No cumple Condición")
+        """
+        Genera casos NK atacando los bloques lógicos de alto nivel.
+        En lugar de negar átomo por átomo, niega la condición necesaria para el bloque.
+        """
+        cond_block = self._find_section("Condicion_Entrada")
+        
+        # 1. Identificamos los grandes bloques que están unidos por AND
+        # Para que la entrada sea NK, basta con que UNO de estos bloques falle.
+        and_components = self._flatten_logic(cond_block, "AND")
 
+        for i, comp in enumerate(and_components):
+            # Copiamos la semilla para tener un contexto base válido
+            bad_inputs = golden_inputs.copy()
+            
+            # Análisis del componente que queremos romper
+            comp_preds = self._extract_predicates(comp)
+            
+            # CASO A: El componente es un Átomo simple (Ej: C373 > 0)
+            if len(comp_preds) == 1:
+                target = comp_preds[0]['target']
+                op = comp_preds[0]['op']
+                right_tree = comp_preds[0]['right_tree']
+                
+                # Calculamos valor de referencia
+                context = {**golden_inputs, **self.parameters}
+                ref_val = self.math_engine.evaluate(right_tree, context)
+                
+                # Rompemos este valor específico
+                broken_val = self._get_broken_value(op, ref_val)
+                if broken_val is not None:
+                    bad_inputs[target] = broken_val
+                    self._add_case("Cond. NK", f"Fallo forzado en {target} (Bloque AND #{i+1})", bad_inputs, "No cumple Condición")
+
+            # CASO B: El componente es un Grupo OR (Ej: C19>0 .o. C1111>0 ...)
+            else:
+                # Para romper un OR, necesitamos que TODAS sus opciones fallen.
+                # Así que recorremos todos los predicados del OR y los ponemos en modo "Fallo" simultáneamente.
+                description_parts = []
+                possible_sabotage = True
+                
+                for p in comp_preds:
+                    target = p['target']
+                    op = p['op']
+                    right_tree = p['right_tree']
+                    
+                    context = {**golden_inputs, **self.parameters}
+                    ref_val = self.math_engine.evaluate(right_tree, context)
+                    
+                    broken_val = self._get_broken_value(op, ref_val)
+                    
+                    if broken_val is not None:
+                        bad_inputs[target] = broken_val
+                        description_parts.append(target)
+                    else:
+                        possible_sabotage = False
+                
+                if possible_sabotage:
+                    desc = f"Fallo total del Grupo OR ({', '.join(description_parts)})"
+                    self._add_case("Cond. NK", desc, bad_inputs, "No cumple Condición")
+
+    def _get_broken_value(self, op, ref_value):
+        """Helper para invertir lógica de operadores"""
+        if op == ">": return ref_value        # >0 -> 0
+        elif op == ">=": return ref_value - 1
+        elif op == "<": return ref_value
+        elif op == "<=": return ref_value + 1
+        elif op == "=": return ref_value + 1
+        elif op == "≠": return ref_value
+        return None
     # --- UTILIDADES ---
     
     def _extract_predicates(self, block):

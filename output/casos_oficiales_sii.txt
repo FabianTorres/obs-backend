@@ -3,18 +3,16 @@ Numero de caso|Tipo de caso|Datos de prueba|Resultado
 11468|Cond. OK|[1111]=1; [373]=1;|Cumple Condición
 11469|Cond. OK|[1641]=1; [373]=1;|Cumple Condición
 11470|Cond. NK|[19]=1; [373]=0;|No cumple Condición
-11471|Cond. NK|[19]=0; [373]=1;|No cumple Condición
-11472|Cond. NK|[1111]=0; [19]=1; [373]=1;|No cumple Condición
-11473|Cond. NK|[1641]=0; [19]=1; [373]=1;|No cumple Condición
-11474|CHI|[19]=1; [373]=1;|0.0
-11475|Omega|[19]=1; [373]=1;|0.0
-11476|Alfa|[19]=1; [373]=1;|0
-11477|VALOR_1|[19]=1; [373]=1;|0
-11478|VALOR_2|[19]=1; [373]=1;|0
-11479|KAPPA|[19]=1; [373]=1;|0.0
-11480|RHO|[19]=1; [373]=1;|0.0
-11481|OMICRON|[19]=1; [373]=1;|0
-11482|EPSILON|[19]=1; [373]=1;|0
-11483|OMEGA|[19]=1; [373]=1;|0
-11484|Norma 1|[19]=1; [373]=1;|DIF=Calc DISC=Calc
-11485|Norma NK|[19]=1; [373]=1;|No cumple Norma
+11471|Cond. NK|[1111]=0; [1641]=0; [19]=0; [373]=1;|No cumple Condición
+11472|CHI|[19]=1; [373]=1;|0.0
+11473|Omega|[19]=1; [373]=1;|0.0
+11474|Alfa|[19]=1; [373]=1;|0
+11475|VALOR_1|[19]=1; [373]=1;|0
+11476|VALOR_2|[19]=1; [373]=1;|0
+11477|KAPPA|[19]=1; [373]=1;|0.0
+11478|RHO|[19]=1; [373]=1;|0.0
+11479|OMICRON|[19]=1; [373]=1;|0
+11480|EPSILON|[19]=1; [373]=1;|0
+11481|OMEGA|[19]=1; [373]=1;|0
+11482|Norma 1|[19]=1; [373]=1;|DIF=Calc DISC=Calc
+11483|Norma NK|[19]=1; [373]=1;|No cumple Norma
