@@ -1,0 +1,58 @@
+Condición de Entrada:
+(C373 > 0 .y.
+(C19 > 0 .o. C 1111>0 .o. C1641>0))
+
+Variables:
+
+CHI= MIN{P704*C18 ;Min( POS{ C19-C898 } ; C373) }
+
+Omega= Min (P647 *C1109; Min(POS(C1111-C898); C373))
+
+Alfa=Min (P84*C1640; Min (POS(C1641-C898); C373))
+
+VALOR 1 = POS ((C986 + C987 + C988 + C792 + C989 + C772) –
+(C990 + C991 + C1001 + C794 + C993 + C811))
+
+VALOR 2= POS ((C990 + C991 + C1001 + C794 + C993 + C811) -
+(C373 + C382 + C761 + C773 + C384))
+
+KAPPA= MIN { (Vx014639); MAX { POS(( C1690+C1440) + VALOR 1
++VALOR 2) * P11 ; Max(C645 * P345; C1545*P345) } }
+
+
+RHO = MIN {KAPPA * P02; POS(C1690+C1440) * P17; P525}
+
+
+OMICRON= 0, si Vx010599=511 .o. 512, 1, sino
+
+EPSILON= 1 ; (Vx010103 + Vx010137) > 0 0 ; si no
+
+OMEGA={Max{Vx014440; C1795} ,si Vx014648≠8 0 ,si Vx014648=8
+
+Alfa= Si (Vx013662=1 .y. Vx012602=0) = 0 1, Sino
+
+
+Norma de Observación 1:
+
+CHI> RHO + P31
+
+DIF = (CHI - RHO )
+DISC = DIF
+RETE = DISC
+
+
+Norma de Observación 2:
+OMEGA> RHO + P31
+
+DIF = (OMEGA– RHO )
+DISC = DIF
+RETE = DISC
+
+
+Norma de observación 3:
+
+ALFA > RHO * OMICRON + P31
+
+DIF = (ALFA - RHO * OMICRON)
+DISC = DIF
+RETE = DISC

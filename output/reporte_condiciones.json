@@ -1,0 +1,160 @@
+[
+  {
+    "seccion": "Condicion_Entrada",
+    "variable_origen": "N/A",
+    "expresion_legible": "C373 > 0",
+    "detalle_tecnico": {
+      "op": ">",
+      "left": "C373",
+      "right": 0
+    }
+  },
+  {
+    "seccion": "Condicion_Entrada",
+    "variable_origen": "N/A",
+    "expresion_legible": "C19 > 0",
+    "detalle_tecnico": {
+      "op": ">",
+      "left": "C19",
+      "right": 0
+    }
+  },
+  {
+    "seccion": "Condicion_Entrada",
+    "variable_origen": "N/A",
+    "expresion_legible": "C1111 > 0",
+    "detalle_tecnico": {
+      "op": ">",
+      "left": "C1111",
+      "right": 0
+    }
+  },
+  {
+    "seccion": "Condicion_Entrada",
+    "variable_origen": "N/A",
+    "expresion_legible": "C1641 > 0",
+    "detalle_tecnico": {
+      "op": ">",
+      "left": "C1641",
+      "right": 0
+    }
+  },
+  {
+    "seccion": "Variables",
+    "variable_origen": "OMICRON",
+    "expresion_legible": "Vx010599 = 511",
+    "detalle_tecnico": {
+      "op": "=",
+      "left": "Vx010599",
+      "right": 511
+    }
+  },
+  {
+    "seccion": "Variables",
+    "variable_origen": "EPSILON",
+    "expresion_legible": "(Vx010103 + Vx010137) > 0",
+    "detalle_tecnico": {
+      "op": ">",
+      "left": {
+        "op": "+",
+        "terms": [
+          "Vx010103",
+          "Vx010137"
+        ]
+      },
+      "right": 0
+    }
+  },
+  {
+    "seccion": "Variables",
+    "variable_origen": "OMEGA",
+    "expresion_legible": "Vx014648 ≠ 8",
+    "detalle_tecnico": {
+      "op": "≠",
+      "left": "Vx014648",
+      "right": 8
+    }
+  },
+  {
+    "seccion": "Variables",
+    "variable_origen": "OMEGA",
+    "expresion_legible": "Vx014648 = 8",
+    "detalle_tecnico": {
+      "op": "=",
+      "left": "Vx014648",
+      "right": 8
+    }
+  },
+  {
+    "seccion": "Variables",
+    "variable_origen": "Alfa",
+    "expresion_legible": "Vx013662 = 1",
+    "detalle_tecnico": {
+      "op": "=",
+      "left": "Vx013662",
+      "right": 1
+    }
+  },
+  {
+    "seccion": "Variables",
+    "variable_origen": "Alfa",
+    "expresion_legible": "Vx012602 = 0",
+    "detalle_tecnico": {
+      "op": "=",
+      "left": "Vx012602",
+      "right": 0
+    }
+  },
+  {
+    "seccion": "Norma_Observacion",
+    "variable_origen": "N/A",
+    "expresion_legible": "CHI > (RHO + P31)",
+    "detalle_tecnico": {
+      "op": ">",
+      "left": "CHI",
+      "right": {
+        "op": "+",
+        "terms": [
+          "RHO",
+          "P31"
+        ]
+      }
+    }
+  },
+  {
+    "seccion": "Norma_Observacion",
+    "variable_origen": "N/A",
+    "expresion_legible": "OMEGA > (RHO + P31)",
+    "detalle_tecnico": {
+      "op": ">",
+      "left": "OMEGA",
+      "right": {
+        "op": "+",
+        "terms": [
+          "RHO",
+          "P31"
+        ]
+      }
+    }
+  },
+  {
+    "seccion": "Norma_Observacion",
+    "variable_origen": "N/A",
+    "expresion_legible": "ALFA > ((RHO * OMICRON) + P31)",
+    "detalle_tecnico": {
+      "op": ">",
+      "left": "ALFA",
+      "right": {
+        "op": "+",
+        "terms": [
+          {
+            "op": "*",
+            "left": "RHO",
+            "right": "OMICRON"
+          },
+          "P31"
+        ]
+      }
+    }
+  }
+]

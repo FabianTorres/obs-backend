@@ -1,0 +1,102 @@
+// --- ESTRUCTURA MACRO ---
+start: section+
+
+section: header instruction_block
+
+header: /Condición de Entrada/i ":" -> header_condicion
+      | /Variables/i ":"            -> header_variables
+      | /Norma de Observación/i DIGIT* ":" -> header_norma
+
+instruction_block: (instruction | logic_expr)+
+
+instruction: variable_name "=" value_definition
+
+// --- DEFINICIONES DE VALOR ---
+?value_definition: ternary_piecewise
+                 | ternary_explicit
+                 | ternary_brace
+                 | ternary_prefix
+                 | ternary_comma
+                 | ternary_semi
+                 | logic_expr
+
+// --- LOGICA Y MATEMATICA ---
+?logic_expr: logic_term
+           | logic_expr ".o." logic_term -> or_op
+           | logic_expr ".y." logic_term -> and_op
+
+?logic_term: comparison
+
+?comparison: expression
+           | expression COMP_OP expression
+
+COMP_OP: ">=" | "<=" | ">" | "<" | "=" | "≠" | "<>"
+
+?expression: term
+           | expression "+" term -> suma
+           | expression "-" term -> resta
+           | expression "–" term -> resta 
+
+?term: factor
+     | term "*" factor -> multi
+     | term "/" factor -> div
+
+?factor: atom
+       | function_call
+       | "(" logic_expr ")"
+       | "{" logic_expr "}" 
+
+// --- FUNCIONES ---
+
+function_call: FUNC_NAME "(" args ")" 
+             | FUNC_NAME "{" args "}"
+
+// AQUI ESTABA EL ERROR: He dejado lineas vacias para asegurar la separacion
+
+args: logic_expr (separator logic_expr)*
+
+separator: ";" | ","
+
+FUNC_NAME: "MIN"i | "MAX"i | "POS"i 
+
+// --- REGLAS DE CONDICIONALES ---
+
+// Caso PDF Roto: { Val ,si Cond ...
+ternary_piecewise: "{" logic_expr separator? "si" logic_expr separator? logic_expr separator? "si" logic_expr "}"?
+
+// Dialecto OMEGA
+ternary_explicit: logic_expr separator? "si" logic_expr separator? logic_expr separator? "si" logic_expr
+
+// Dialecto ALFA
+ternary_prefix: "Si" logic_expr "=" logic_expr separator? logic_expr separator? sino_block
+
+// Dialecto FHI
+ternary_brace: "{" logic_expr separator "si" logic_expr separator? logic_expr separator? sino_block "}"
+
+// Dialecto OMICRON
+ternary_comma: logic_expr "," "si" logic_expr ["," logic_expr "," "sino"]
+
+// Dialecto EPSILON
+ternary_semi: logic_expr ";" logic_expr logic_expr ";" sino_block
+
+sino_block: "si" "no" | "sino" | "Sino"
+
+// --- ATOMOS ---
+atom: VECTOR
+    | CODIGO
+    | PARAMETRO
+    | NUMBER
+    | variable_name
+
+VECTOR: "Vx" "."? DIGIT+
+CODIGO: "C" WS? DIGIT+
+PARAMETRO: "P" DIGIT+
+
+variable_name: "VALOR"i DIGIT+    -> var_valor
+             | WORD               -> var_nombre
+
+%import common.DIGIT
+%import common.WORD
+%import common.NUMBER
+%import common.WS
+%ignore WS

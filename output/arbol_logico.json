@@ -1,0 +1,541 @@
+[
+  {
+    "section": "Condicion_Entrada",
+    "content": [
+      {
+        "op": "AND",
+        "left": {
+          "op": ">",
+          "left": "C373",
+          "right": 0
+        },
+        "right": {
+          "op": "OR",
+          "left": {
+            "op": "OR",
+            "left": {
+              "op": ">",
+              "left": "C19",
+              "right": 0
+            },
+            "right": {
+              "op": ">",
+              "left": "C1111",
+              "right": 0
+            }
+          },
+          "right": {
+            "op": ">",
+            "left": "C1641",
+            "right": 0
+          }
+        }
+      }
+    ]
+  },
+  {
+    "section": "Variables",
+    "content": [
+      {
+        "target": "CHI",
+        "logic": {
+          "function": "MIN",
+          "args": [
+            {
+              "op": "*",
+              "left": "P704",
+              "right": "C18"
+            },
+            {
+              "function": "MIN",
+              "args": [
+                {
+                  "function": "POS",
+                  "args": [
+                    {
+                      "op": "-",
+                      "left": "C19",
+                      "right": "C898"
+                    }
+                  ]
+                },
+                "C373"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "target": "Omega",
+        "logic": {
+          "function": "MIN",
+          "args": [
+            {
+              "op": "*",
+              "left": "P647",
+              "right": "C1109"
+            },
+            {
+              "function": "MIN",
+              "args": [
+                {
+                  "function": "POS",
+                  "args": [
+                    {
+                      "op": "-",
+                      "left": "C1111",
+                      "right": "C898"
+                    }
+                  ]
+                },
+                "C373"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "target": "Alfa",
+        "logic": {
+          "function": "MIN",
+          "args": [
+            {
+              "op": "*",
+              "left": "P84",
+              "right": "C1640"
+            },
+            {
+              "function": "MIN",
+              "args": [
+                {
+                  "function": "POS",
+                  "args": [
+                    {
+                      "op": "-",
+                      "left": "C1641",
+                      "right": "C898"
+                    }
+                  ]
+                },
+                "C373"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "target": "VALOR_1",
+        "logic": {
+          "function": "POS",
+          "args": [
+            {
+              "op": "-",
+              "left": {
+                "op": "+",
+                "terms": [
+                  {
+                    "op": "+",
+                    "terms": [
+                      {
+                        "op": "+",
+                        "terms": [
+                          {
+                            "op": "+",
+                            "terms": [
+                              {
+                                "op": "+",
+                                "terms": [
+                                  "C986",
+                                  "C987"
+                                ]
+                              },
+                              "C988"
+                            ]
+                          },
+                          "C792"
+                        ]
+                      },
+                      "C989"
+                    ]
+                  },
+                  "C772"
+                ]
+              },
+              "right": {
+                "op": "+",
+                "terms": [
+                  {
+                    "op": "+",
+                    "terms": [
+                      {
+                        "op": "+",
+                        "terms": [
+                          {
+                            "op": "+",
+                            "terms": [
+                              {
+                                "op": "+",
+                                "terms": [
+                                  "C990",
+                                  "C991"
+                                ]
+                              },
+                              "C1001"
+                            ]
+                          },
+                          "C794"
+                        ]
+                      },
+                      "C993"
+                    ]
+                  },
+                  "C811"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "target": "VALOR_2",
+        "logic": {
+          "function": "POS",
+          "args": [
+            {
+              "op": "-",
+              "left": {
+                "op": "+",
+                "terms": [
+                  {
+                    "op": "+",
+                    "terms": [
+                      {
+                        "op": "+",
+                        "terms": [
+                          {
+                            "op": "+",
+                            "terms": [
+                              {
+                                "op": "+",
+                                "terms": [
+                                  "C990",
+                                  "C991"
+                                ]
+                              },
+                              "C1001"
+                            ]
+                          },
+                          "C794"
+                        ]
+                      },
+                      "C993"
+                    ]
+                  },
+                  "C811"
+                ]
+              },
+              "right": {
+                "op": "+",
+                "terms": [
+                  {
+                    "op": "+",
+                    "terms": [
+                      {
+                        "op": "+",
+                        "terms": [
+                          {
+                            "op": "+",
+                            "terms": [
+                              "C373",
+                              "C382"
+                            ]
+                          },
+                          "C761"
+                        ]
+                      },
+                      "C773"
+                    ]
+                  },
+                  "C384"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "target": "KAPPA",
+        "logic": {
+          "function": "MIN",
+          "args": [
+            "Vx014639",
+            {
+              "function": "MAX",
+              "args": [
+                {
+                  "op": "*",
+                  "left": {
+                    "function": "POS",
+                    "args": [
+                      {
+                        "op": "+",
+                        "terms": [
+                          {
+                            "op": "+",
+                            "terms": [
+                              {
+                                "op": "+",
+                                "terms": [
+                                  "C1690",
+                                  "C1440"
+                                ]
+                              },
+                              "VALOR_1"
+                            ]
+                          },
+                          "VALOR_2"
+                        ]
+                      }
+                    ]
+                  },
+                  "right": "P11"
+                },
+                {
+                  "function": "MAX",
+                  "args": [
+                    {
+                      "op": "*",
+                      "left": "C645",
+                      "right": "P345"
+                    },
+                    {
+                      "op": "*",
+                      "left": "C1545",
+                      "right": "P345"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "target": "RHO",
+        "logic": {
+          "function": "MIN",
+          "args": [
+            {
+              "op": "*",
+              "left": "KAPPA",
+              "right": "P02"
+            },
+            {
+              "op": "*",
+              "left": {
+                "function": "POS",
+                "args": [
+                  {
+                    "op": "+",
+                    "terms": [
+                      "C1690",
+                      "C1440"
+                    ]
+                  }
+                ]
+              },
+              "right": "P17"
+            },
+            "P525"
+          ]
+        }
+      },
+      {
+        "target": "OMICRON",
+        "logic": {
+          "type": "conditional_explicit",
+          "val_1": 0,
+          "cond_1": {
+            "op": "OR",
+            "left": {
+              "op": "=",
+              "left": "Vx010599",
+              "right": 511
+            },
+            "right": 512
+          },
+          "val_2": 1,
+          "cond_2": "no"
+        }
+      },
+      {
+        "target": "EPSILON",
+        "logic": {
+          "type": "conditional",
+          "true": 1,
+          "cond": {
+            "op": ">",
+            "left": {
+              "op": "+",
+              "terms": [
+                "Vx010103",
+                "Vx010137"
+              ]
+            },
+            "right": 0
+          },
+          "false": 0
+        }
+      },
+      {
+        "target": "OMEGA",
+        "logic": {
+          "type": "conditional_piecewise_pdf",
+          "val_1": {
+            "function": "MAX",
+            "args": [
+              "Vx014440",
+              "C1795"
+            ]
+          },
+          "cond_1": {
+            "op": "≠",
+            "left": "Vx014648",
+            "right": 8
+          },
+          "val_2": 0,
+          "cond_2": {
+            "op": "=",
+            "left": "Vx014648",
+            "right": 8
+          }
+        }
+      },
+      {
+        "target": "Alfa",
+        "logic": {
+          "type": "conditional",
+          "true": 0,
+          "cond": {
+            "op": "AND",
+            "left": {
+              "op": "=",
+              "left": "Vx013662",
+              "right": 1
+            },
+            "right": {
+              "op": "=",
+              "left": "Vx012602",
+              "right": 0
+            }
+          },
+          "false": 1
+        }
+      }
+    ]
+  },
+  {
+    "section": "Norma_Observacion",
+    "content": [
+      {
+        "op": ">",
+        "left": "CHI",
+        "right": {
+          "op": "+",
+          "terms": [
+            "RHO",
+            "P31"
+          ]
+        }
+      },
+      {
+        "target": "DIF",
+        "logic": {
+          "op": "-",
+          "left": "CHI",
+          "right": "RHO"
+        }
+      },
+      {
+        "target": "DISC",
+        "logic": "DIF"
+      },
+      {
+        "target": "RETE",
+        "logic": "DISC"
+      }
+    ]
+  },
+  {
+    "section": "Norma_Observacion",
+    "content": [
+      {
+        "op": ">",
+        "left": "OMEGA",
+        "right": {
+          "op": "+",
+          "terms": [
+            "RHO",
+            "P31"
+          ]
+        }
+      },
+      {
+        "target": "DIF",
+        "logic": {
+          "op": "-",
+          "left": "OMEGA",
+          "right": "RHO"
+        }
+      },
+      {
+        "target": "DISC",
+        "logic": "DIF"
+      },
+      {
+        "target": "RETE",
+        "logic": "DISC"
+      }
+    ]
+  },
+  {
+    "section": "Norma_Observacion",
+    "content": [
+      {
+        "op": ">",
+        "left": "ALFA",
+        "right": {
+          "op": "+",
+          "terms": [
+            {
+              "op": "*",
+              "left": "RHO",
+              "right": "OMICRON"
+            },
+            "P31"
+          ]
+        }
+      },
+      {
+        "target": "DIF",
+        "logic": {
+          "op": "-",
+          "left": "ALFA",
+          "right": {
+            "op": "*",
+            "left": "RHO",
+            "right": "OMICRON"
+          }
+        }
+      },
+      {
+        "target": "DISC",
+        "logic": "DIF"
+      },
+      {
+        "target": "RETE",
+        "logic": "DISC"
+      }
+    ]
+  }
+]
