@@ -21,8 +21,24 @@ class ObservacionTransformer(Transformer):
     def separator(self, _):
         return Discard
 
-    # --- OPERADORES ---
-    def or_op(self, items): return {"op": "OR", "left": items[0], "right": items[1]}
+    # --- OPERADORES Y NORMALIZACIÓN LÓGICA ---
+    
+    def or_op(self, items): 
+        left = items[0]
+        right = items[1]
+        
+        # MAGIA: Contexto Implícito (Vx=511 .o. 512 -> Vx=511 .o. Vx=512)
+        # Si la izquierda es una comparación y la derecha es solo un número...
+        if isinstance(left, dict) and "op" in left and isinstance(right, (int, float)):
+            # ...clonamos la estructura de la izquierda pero con el valor de la derecha
+            right = {
+                "op": left["op"],       # Copiamos operador (=)
+                "left": left["left"],   # Copiamos variable (Vx...)
+                "right": right          # Ponemos el nuevo valor (512)
+            }
+            
+        return {"op": "OR", "left": left, "right": right}
+
     def and_op(self, items): return {"op": "AND", "left": items[0], "right": items[1]}
     
     def comparison(self, items): 
@@ -41,8 +57,6 @@ class ObservacionTransformer(Transformer):
         return items 
 
     # --- VARIABLES Y ATOMOS ---
-    
-    # ¡AQUI FALTABA ESTO! Desempaqueta el valor del átomo
     def atom(self, items):
         return items[0]
 

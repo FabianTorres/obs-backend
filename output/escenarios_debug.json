@@ -160,37 +160,82 @@
   {
     "ID_Caso": "11481",
     "Tipo": "OMICRON",
-    "Descripcion": "Cálculo estándar (Semilla)",
+    "Descripcion": "Branch TRUE (Opción 1: Vx010599=511)",
     "Resultado_Esperado": "0",
     "C373": 1,
-    "C19": 1
+    "C19": 1,
+    "Vx010599": 511
   },
   {
     "ID_Caso": "11482",
-    "Tipo": "EPSILON",
-    "Descripcion": "Cálculo estándar (Semilla)",
+    "Tipo": "OMICRON",
+    "Descripcion": "Branch TRUE (Opción 2: Vx010599=512)",
     "Resultado_Esperado": "0",
     "C373": 1,
-    "C19": 1
+    "C19": 1,
+    "Vx010599": 512
   },
   {
     "ID_Caso": "11483",
-    "Tipo": "OMEGA",
-    "Descripcion": "Cálculo estándar (Semilla)",
-    "Resultado_Esperado": "0",
+    "Tipo": "OMICRON",
+    "Descripcion": "Branch FALSE (Condición no cumple)",
+    "Resultado_Esperado": "1",
     "C373": 1,
     "C19": 1
   },
   {
     "ID_Caso": "11484",
-    "Tipo": "Alfa",
-    "Descripcion": "Cálculo estándar (Semilla)",
+    "Tipo": "EPSILON",
+    "Descripcion": "Branch TRUE (Opción 1: )",
     "Resultado_Esperado": "0",
     "C373": 1,
     "C19": 1
   },
   {
     "ID_Caso": "11485",
+    "Tipo": "EPSILON",
+    "Descripcion": "Branch FALSE (Condición no cumple)",
+    "Resultado_Esperado": "0",
+    "C373": 1,
+    "C19": 1
+  },
+  {
+    "ID_Caso": "11486",
+    "Tipo": "OMEGA",
+    "Descripcion": "Branch TRUE (Opción 1: Vx014648=0)",
+    "Resultado_Esperado": "0",
+    "C373": 1,
+    "C19": 1,
+    "Vx014648": 0
+  },
+  {
+    "ID_Caso": "11487",
+    "Tipo": "OMEGA",
+    "Descripcion": "Branch FALSE (Condición no cumple)",
+    "Resultado_Esperado": "0",
+    "C373": 1,
+    "C19": 1
+  },
+  {
+    "ID_Caso": "11488",
+    "Tipo": "Alfa",
+    "Descripcion": "Branch TRUE (Opción 1: Vx013662=1, Vx012602=0)",
+    "Resultado_Esperado": "0",
+    "C373": 1,
+    "C19": 1,
+    "Vx013662": 1,
+    "Vx012602": 0
+  },
+  {
+    "ID_Caso": "11489",
+    "Tipo": "Alfa",
+    "Descripcion": "Branch FALSE (Condición no cumple)",
+    "Resultado_Esperado": "1",
+    "C373": 1,
+    "C19": 1
+  },
+  {
+    "ID_Caso": "11490",
     "Tipo": "Norma 1",
     "Descripcion": "Verificar cumplimiento de Norma",
     "Resultado_Esperado": "DIF=Calc DISC=Calc",
@@ -204,17 +249,17 @@
     "P345": 100.0,
     "CHI": 0,
     "Omega": 0,
-    "Alfa": 0,
+    "Alfa": 1,
     "VALOR_1": 0,
     "VALOR_2": 0,
     "KAPPA": 0,
     "RHO": 0,
-    "OMICRON": 0,
+    "OMICRON": 1,
     "EPSILON": 0,
     "OMEGA": 0
   },
   {
-    "ID_Caso": "11486",
+    "ID_Caso": "11491",
     "Tipo": "Norma NK",
     "Descripcion": "Verificar No Cumplimiento",
     "Resultado_Esperado": "No cumple Norma",
@@ -228,12 +273,12 @@
     "P345": 100.0,
     "CHI": 0,
     "Omega": 0,
-    "Alfa": 0,
+    "Alfa": 1,
     "VALOR_1": 0,
     "VALOR_2": 0,
     "KAPPA": 0,
     "RHO": 0,
-    "OMICRON": 0,
+    "OMICRON": 1,
     "EPSILON": 0,
     "OMEGA": 0
   }

@@ -362,7 +362,11 @@
               "left": "Vx010599",
               "right": 511
             },
-            "right": 512
+            "right": {
+              "op": "=",
+              "left": "Vx010599",
+              "right": 512
+            }
           },
           "val_2": 1,
           "cond_2": "no"
