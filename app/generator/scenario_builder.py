@@ -16,6 +16,7 @@ class ScenarioBuilder:
         
         # 1. Condición de Entrada
         cond_block = self._find_section("Condicion_Entrada")
+        # Genera combinaciones OK (Happy Paths)
         ok_scenarios_inputs = self._generate_ok_combinations(cond_block)
         
         golden_inputs = {} 
@@ -24,22 +25,24 @@ class ScenarioBuilder:
             desc = self._describe_scenario(inputs)
             self._add_case("Cond. OK", f"Camino válido #{i+1}: {desc}", inputs, "Cumple Condición")
 
-        # 2. Casos NK
+        # 2. Casos NK (Sabotaje de Bloques)
         self._generate_nk_cases(cond_block, golden_inputs)
 
-        # 3. VARIABLES (Fuzzer + Branch Testing)
+        # 3. VARIABLES (Calculadas, Condicionales y POS)
         vars_block = self._find_section("Variables")
         self._generate_variable_cases(vars_block, golden_inputs)
 
         # 4. Contexto Completo y Normas
         initial_context = {**golden_inputs, **self.parameters}
+        # Calculamos variables para tener el contexto final
         computed_vars = self._calculate_variables(vars_block, initial_context)
         full_context = {**golden_inputs, **self.parameters, **computed_vars}
+        
         self._generate_norm_cases(full_context)
 
         return self.scenarios
 
-    # --- GENERACIÓN DE VARIABLES MEJORADA ---
+    # --- GENERACIÓN DE VARIABLES ---
 
     def _generate_variable_cases(self, block, base_inputs):
         if not block: return
@@ -49,11 +52,11 @@ class ScenarioBuilder:
             target_name = instr["target"]
             logic = instr["logic"]
             
-            # Detectamos si es un Condicional (Branch Testing)
+            # 1. Variables Condicionales (SI / SINO)
             if isinstance(logic, dict) and "type" in logic and logic["type"].startswith("conditional"):
                 self._solve_conditional_variable(target_name, logic, base_inputs)
             
-            # Detectamos si es Función Especial (POS)
+            # 2. Funciones Especiales (POS)
             elif isinstance(logic, dict) and "function" in logic:
                 fname = logic["function"]
                 if fname == "POS":
@@ -61,16 +64,11 @@ class ScenarioBuilder:
                 else:
                     self._solve_calculation_only(target_name, logic, base_inputs)
             
-            # Default
+            # 3. Cálculo Directo
             else:
                 self._solve_calculation_only(target_name, logic, base_inputs)
 
     def _solve_conditional_variable(self, var_name, logic_node, base_inputs):
-        """
-        Genera casos para probar el SI (True) y el SINO (False) de una variable condicional.
-        Ahora soporta expansión combinatoria (ORs) en la condición.
-        """
-        # 1. Extraer la lógica de la condición
         condition_logic = None
         if "cond" in logic_node: condition_logic = logic_node["cond"]
         elif "cond_1" in logic_node: condition_logic = logic_node["cond_1"]
@@ -79,33 +77,22 @@ class ScenarioBuilder:
             self._solve_calculation_only(var_name, logic_node, base_inputs)
             return
 
-        # --- CASO A: FORZAR BRANCH TRUE (Expansión Combinatoria) ---
-        # Usamos la misma lógica que en Condición de Entrada para detectar ORs
-        # Esto nos devolverá una lista de inputs: [{Vx:511}, {Vx:512}]
+        # CASO A: FORZAR BRANCH TRUE (Usando expansión combinatoria para cubrir ORs internos)
         possible_trigger_inputs = self._generate_ok_combinations(condition_logic)
         
         for i, trigger_input in enumerate(possible_trigger_inputs):
-            # Mezclamos con la base
             inputs_true = {**base_inputs, **trigger_input}
-            
-            # Calculamos resultado
             ctx_true = {**inputs_true, **self.parameters}
             val_true = self.math_engine.evaluate(logic_node, ctx_true)
             if isinstance(val_true, float) and val_true.is_integer(): val_true = int(val_true)
             
-            # Generamos descripción dinámica (qué activamos)
             desc_vars = [f"{k}={v}" for k, v in trigger_input.items() if k not in self.parameters]
             desc = f"Branch TRUE (Opción {i+1}: {', '.join(desc_vars)})"
             
             self._add_case(var_name, desc, inputs_true, str(val_true))
 
-        # --- CASO B: FORZAR BRANCH FALSE (Else / Sino) ---
+        # CASO B: FORZAR BRANCH FALSE
         inputs_false = base_inputs.copy()
-        
-        # Para asegurar que entramos al False, deberíamos "limpiar" las variables que activan el True.
-        # En el caso de OMICRON, la semilla no tiene Vx010599, así que vale 0. 0 != 511 y 0 != 512.
-        # Funciona natural.
-        
         ctx_false = {**inputs_false, **self.parameters}
         val_false = self.math_engine.evaluate(logic_node, ctx_false)
         if isinstance(val_false, float) and val_false.is_integer(): val_false = int(val_false)
@@ -113,7 +100,7 @@ class ScenarioBuilder:
         self._add_case(var_name, "Branch FALSE (Condición no cumple)", inputs_false, str(val_false))
 
     def _solve_pos_case(self, var_name, expression_tree, base_inputs):
-        # Lógica de Balanza (IGUAL QUE ANTES)
+        # Lógica de Balanza para POS (Sensibilidad Alta)
         atoms_positive = []
         atoms_negative = []
         self._decompose_additive_expression(expression_tree, atoms_positive, atoms_negative)
@@ -125,7 +112,7 @@ class ScenarioBuilder:
         base_val_pos = (len(atoms_negative) or 1) * 100
         base_val_neg = (len(atoms_positive) or 1) * 100
 
-        # CASO 1: POSITIVO
+        # CASO 1: POSITIVO (Gana por 1)
         inputs_p = base_inputs.copy()
         for atom in atoms_positive: inputs_p[atom] = base_val_pos
         for atom in atoms_negative: inputs_p[atom] = base_val_neg
@@ -136,7 +123,7 @@ class ScenarioBuilder:
         if isinstance(val_p, float) and val_p.is_integer(): val_p = int(val_p)
         self._add_case(var_name, "Borde POS > 0 (Diferencia = 1)", inputs_p, str(val_p))
 
-        # CASO 2: CERO
+        # CASO 2: CERO (Pierde por 1)
         inputs_z = base_inputs.copy()
         for atom in atoms_positive: inputs_z[atom] = base_val_pos
         for atom in atoms_negative: inputs_z[atom] = base_val_neg
@@ -153,19 +140,30 @@ class ScenarioBuilder:
         if isinstance(val, float) and val.is_integer(): val = int(val)
         self._add_case(var_name, "Cálculo estándar (Semilla)", base_inputs, str(val))
 
-    # --- RESTO DE MÉTODOS AUXILIARES (IGUAL QUE ANTES) ---
+    # --- LÓGICA CORE (Expansión y Solver) ---
     
     def _generate_ok_combinations(self, logic_block):
         and_components = self._flatten_logic(logic_block, "AND")
         component_options = []
+        
         for comp in and_components:
             or_options = self._flatten_logic(comp, "OR")
+            
+            # EXPANSIÓN: Convertimos (A+B)>0 en [A>0, B>0]
+            final_options = []
+            for opt in or_options:
+                expanded = self._try_expand_complex_comparison(opt)
+                final_options.extend(expanded)
+
             solved_options = []
-            for option in or_options:
+            for option in final_options:
                 preds = self._extract_predicates(option)
                 inputs = self._solve_for_true(preds)
-                if inputs: solved_options.append(inputs)
-            if solved_options: component_options.append(solved_options)
+                if inputs:
+                    solved_options.append(inputs)
+            
+            if solved_options:
+                component_options.append(solved_options)
         
         all_combinations = []
         for combo in itertools.product(*component_options):
@@ -173,6 +171,22 @@ class ScenarioBuilder:
             for d in combo: merged_inputs.update(d)
             all_combinations.append(merged_inputs)
         return all_combinations
+
+    def _try_expand_complex_comparison(self, logic_node):
+        """Intenta descomponer sumas complejas en opciones individuales"""
+        if isinstance(logic_node, dict) and "op" in logic_node:
+            op = logic_node["op"]
+            if op in [">", ">=", "≠"]:
+                left = logic_node["left"]
+                right = logic_node["right"]
+                if isinstance(left, dict):
+                    atoms = self._extract_leaf_vars(left)
+                    if len(atoms) > 1:
+                        variants = []
+                        for var in atoms:
+                            variants.append({"op": op, "left": var, "right": right})
+                        return variants
+        return [logic_node]
 
     def _generate_nk_cases(self, cond_block, golden_inputs):
         and_components = self._flatten_logic(cond_block, "AND")
@@ -191,6 +205,7 @@ class ScenarioBuilder:
                     bad_inputs[target] = broken_val
                     self._add_case("Cond. NK", f"Fallo forzado en {target} (Bloque #{i+1})", bad_inputs, "No cumple Condición")
             else:
+                # Lógica para romper grupos OR
                 description_parts = []
                 possible_sabotage = True
                 for p in comp_preds:
@@ -209,22 +224,49 @@ class ScenarioBuilder:
                     desc = f"Fallo total del Grupo OR ({', '.join(description_parts)})"
                     self._add_case("Cond. NK", desc, bad_inputs, "No cumple Condición")
 
-    def _decompose_additive_expression(self, tree, pos_list, neg_list, current_sign=1):
-        if isinstance(tree, str):
-            if current_sign > 0: pos_list.append(tree)
-            else: neg_list.append(tree)
-            return
-        if isinstance(tree, dict) and "op" in tree:
-            op = tree["op"]
-            if op == "+":
-                if "terms" in tree:
-                    for term in tree["terms"]: self._decompose_additive_expression(term, pos_list, neg_list, current_sign)
-                else:
-                    self._decompose_additive_expression(tree["left"], pos_list, neg_list, current_sign)
-                    self._decompose_additive_expression(tree["right"], pos_list, neg_list, current_sign)
-            elif op == "-" or op == "–":
-                self._decompose_additive_expression(tree["left"], pos_list, neg_list, current_sign)
-                self._decompose_additive_expression(tree["right"], pos_list, neg_list, current_sign * -1)
+    def _extract_predicates(self, block):
+        """Extrae comparaciones, soportando variables simples y complejas (delegando líder)"""
+        preds = []
+        if isinstance(block, list):
+            for item in block: preds.extend(self._extract_predicates(item))
+        elif isinstance(block, dict):
+            if "op" in block and block["op"] in [">", "<", ">=", "<=", "=", "≠"]:
+                left = block["left"]
+                right = block["right"]
+                
+                # Caso 1: Variable simple a la izquierda
+                if isinstance(left, str):
+                    preds.append({"target": left, "op": block["op"], "right_tree": right})
+                
+                # Caso 2: Expresión compleja a la izquierda (A + B > 0)
+                elif isinstance(left, dict):
+                    atoms = self._extract_leaf_vars(left)
+                    if atoms:
+                        leader = atoms[0]
+                        preds.append({"target": leader, "op": block["op"], "right_tree": right})
+
+            for k, v in block.items():
+                if isinstance(v, (dict, list)): preds.extend(self._extract_predicates(v))
+        return preds
+
+    def _extract_leaf_vars(self, node):
+        """Busca variables recursivamente, IGNORANDO operadores y metadatos"""
+        vars_found = []
+        if isinstance(node, str):
+            # Filtro estricto para no capturar operadores como variables
+            if len(node) > 0 and node not in ["AND", "OR", "POS", "MIN", "MAX", "si", "no", "sino"]:
+                if node.isalnum() or node.startswith("Vx") or "_" in node:
+                    vars_found.append(node)
+        elif isinstance(node, list):
+            for item in node: vars_found.extend(self._extract_leaf_vars(item))
+        elif isinstance(node, dict):
+            for k, v in node.items():
+                # Ignoramos claves de metadatos, solo entramos en datos
+                if k in ["op", "function", "type", "section"]: continue
+                vars_found.extend(self._extract_leaf_vars(v))
+        return vars_found
+
+    # --- UTILIDADES ---
 
     def _solve_for_true(self, predicates):
         current_inputs = self.parameters.copy()
@@ -263,18 +305,22 @@ class ScenarioBuilder:
         items.append(node)
         return items
 
-    def _extract_predicates(self, block):
-        preds = []
-        if isinstance(block, list):
-            for item in block: preds.extend(self._extract_predicates(item))
-        elif isinstance(block, dict):
-            if "op" in block and block["op"] in [">", "<", ">=", "<=", "=", "≠"]:
-                left = block["left"]
-                if isinstance(left, str):
-                    preds.append({"target": left, "op": block["op"], "right_tree": block["right"]})
-            for k, v in block.items():
-                if isinstance(v, (dict, list)): preds.extend(self._extract_predicates(v))
-        return preds
+    def _decompose_additive_expression(self, tree, pos_list, neg_list, current_sign=1):
+        if isinstance(tree, str):
+            if current_sign > 0: pos_list.append(tree)
+            else: neg_list.append(tree)
+            return
+        if isinstance(tree, dict) and "op" in tree:
+            op = tree["op"]
+            if op == "+":
+                if "terms" in tree:
+                    for term in tree["terms"]: self._decompose_additive_expression(term, pos_list, neg_list, current_sign)
+                else:
+                    self._decompose_additive_expression(tree["left"], pos_list, neg_list, current_sign)
+                    self._decompose_additive_expression(tree["right"], pos_list, neg_list, current_sign)
+            elif op == "-" or op == "–":
+                self._decompose_additive_expression(tree["left"], pos_list, neg_list, current_sign)
+                self._decompose_additive_expression(tree["right"], pos_list, neg_list, current_sign * -1)
 
     def _calculate_variables(self, block, context_inputs):
         results = {}

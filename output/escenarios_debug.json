@@ -186,13 +186,23 @@
   {
     "ID_Caso": "11484",
     "Tipo": "EPSILON",
-    "Descripcion": "Branch TRUE (Opción 1: )",
-    "Resultado_Esperado": "0",
+    "Descripcion": "Branch TRUE (Opción 1: Vx010103=1)",
+    "Resultado_Esperado": "1",
     "C373": 1,
-    "C19": 1
+    "C19": 1,
+    "Vx010103": 1
   },
   {
     "ID_Caso": "11485",
+    "Tipo": "EPSILON",
+    "Descripcion": "Branch TRUE (Opción 2: Vx010137=1)",
+    "Resultado_Esperado": "1",
+    "C373": 1,
+    "C19": 1,
+    "Vx010137": 1
+  },
+  {
+    "ID_Caso": "11486",
     "Tipo": "EPSILON",
     "Descripcion": "Branch FALSE (Condición no cumple)",
     "Resultado_Esperado": "0",
@@ -200,7 +210,7 @@
     "C19": 1
   },
   {
-    "ID_Caso": "11486",
+    "ID_Caso": "11487",
     "Tipo": "OMEGA",
     "Descripcion": "Branch TRUE (Opción 1: Vx014648=0)",
     "Resultado_Esperado": "0",
@@ -209,7 +219,7 @@
     "Vx014648": 0
   },
   {
-    "ID_Caso": "11487",
+    "ID_Caso": "11488",
     "Tipo": "OMEGA",
     "Descripcion": "Branch FALSE (Condición no cumple)",
     "Resultado_Esperado": "0",
@@ -217,7 +227,7 @@
     "C19": 1
   },
   {
-    "ID_Caso": "11488",
+    "ID_Caso": "11489",
     "Tipo": "Alfa",
     "Descripcion": "Branch TRUE (Opción 1: Vx013662=1, Vx012602=0)",
     "Resultado_Esperado": "0",
@@ -227,7 +237,7 @@
     "Vx012602": 0
   },
   {
-    "ID_Caso": "11489",
+    "ID_Caso": "11490",
     "Tipo": "Alfa",
     "Descripcion": "Branch FALSE (Condición no cumple)",
     "Resultado_Esperado": "1",
@@ -235,7 +245,7 @@
     "C19": 1
   },
   {
-    "ID_Caso": "11490",
+    "ID_Caso": "11491",
     "Tipo": "Norma 1",
     "Descripcion": "Verificar cumplimiento de Norma",
     "Resultado_Esperado": "DIF=Calc DISC=Calc",
@@ -259,7 +269,7 @@
     "OMEGA": 0
   },
   {
-    "ID_Caso": "11491",
+    "ID_Caso": "11492",
     "Tipo": "Norma NK",
     "Descripcion": "Verificar No Cumplimiento",
     "Resultado_Esperado": "No cumple Norma",
