@@ -10,6 +10,9 @@ class ScenarioBuilder:
         self.math_engine = MathEngine()
         self.scenarios = []
         self.case_id = 11467
+        
+        # NUEVO: Mapa de definiciones para búsqueda rápida (Reverse Lookup)
+        self.var_definitions = self._map_variable_definitions()
 
     def build_suite(self):
         """Genera la suite completa de pruebas"""
@@ -39,6 +42,17 @@ class ScenarioBuilder:
 
         return self.scenarios
 
+    # --- NUEVO: MAPEO DE VARIABLES ---
+    def _map_variable_definitions(self):
+        """Crea un diccionario {NombreVar: Logica} para resolver dependencias"""
+        definitions = {}
+        vars_block = self._find_section("Variables")
+        if vars_block:
+            for item in vars_block:
+                if "target" in item:
+                    definitions[item["target"]] = item["logic"]
+        return definitions
+
     # --- GENERACIÓN DE VARIABLES ---
 
     def _generate_variable_cases(self, block, base_inputs):
@@ -48,13 +62,9 @@ class ScenarioBuilder:
         for instr in instr_list:
             target_name = instr["target"]
             logic = instr["logic"]
-            
-            # Usamos un despachador centralizado para resolver la lógica
             self._dispatch_logic_solver(target_name, logic, base_inputs, prefix="")
 
     def _dispatch_logic_solver(self, target_name, logic, base_inputs, prefix=""):
-        """Decide qué estrategia usar según el tipo de lógica (Condicional, POS, MAX, Simple)"""
-        
         # 1. Condicionales
         if isinstance(logic, dict) and "type" in logic and logic["type"].startswith("conditional"):
             self._solve_conditional_variable(target_name, logic, base_inputs, prefix)
@@ -75,8 +85,6 @@ class ScenarioBuilder:
 
     def _solve_conditional_variable(self, var_name, logic_node, base_inputs, prefix=""):
         branches_to_test = []
-
-        # Normalización de ramas (Standard vs Piecewise)
         if "cond" in logic_node:
             branches_to_test.append({"cond": logic_node["cond"], "val": logic_node["true"], "label": "Branch TRUE"})
             branches_to_test.append({"cond": None, "val": logic_node["false"], "label": "Branch FALSE"})
@@ -87,71 +95,50 @@ class ScenarioBuilder:
             else:
                 branches_to_test.append({"cond": None, "val": logic_node.get("val_2"), "label": "Rama Defecto"})
 
-        # Procesar cada rama
         for branch in branches_to_test:
             condition = branch["cond"]
-            value_logic = branch["val"] # ¡Aquí está el MAX o el 0!
+            value_logic = branch["val"]
             label = f"{prefix}{branch['label']}"
 
-            # 1. Determinar inputs para entrar a la rama
             branch_inputs_list = []
             if condition:
-                # Expansión combinatoria para entrar al IF
                 triggers = self._generate_ok_combinations(condition)
                 for t in triggers: branch_inputs_list.append({**base_inputs, **t})
             else:
-                # Rama else/default usa base inputs
                 branch_inputs_list.append(base_inputs.copy())
 
-            # 2. Para cada forma de entrar, resolver la lógica interna
             for i, inputs_ctx in enumerate(branch_inputs_list):
-                # Generamos una descripción de qué activó la rama
                 desc_trigger = ""
                 if condition:
                     actives = [f"{k}={v}" for k,v in inputs_ctx.items() if k not in base_inputs and k not in self.parameters]
                     if actives: desc_trigger = f" (Trigger: {', '.join(actives)})"
-                
                 final_label = f"{label}{desc_trigger}"
-                
-                # ¡RECURSIVIDAD MÁGICA!
-                # En vez de calcular directo, le pedimos al dispatcher que analice el 'value_logic'.
-                # Si es MAX, generará casos MAX. Si es 0, calculará directo.
                 self._dispatch_logic_solver(var_name, value_logic, inputs_ctx, prefix=f"{final_label} -> ")
 
     def _solve_min_max_case(self, var_name, logic_node, base_inputs, prefix=""):
-        """Genera casos donde gana el argumento A y casos donde gana B"""
         fname = logic_node["function"]
         args = logic_node["args"]
-        
-        # Simplificación: Solo tomamos los 2 primeros argumentos para contrastar
         if len(args) < 2:
             self._solve_calculation_only(var_name, logic_node, base_inputs, prefix)
             return
 
         arg_a = args[0]
         arg_b = args[1]
-        
         vars_a = self._extract_leaf_vars(arg_a)
         vars_b = self._extract_leaf_vars(arg_b)
 
-        # CASO 1: GANA A (Izquierda)
+        # GANA A
         inputs_a = base_inputs.copy()
-        # Inflamos A, desinflamos B
         for v in vars_a: inputs_a[v] = 1000
         for v in vars_b: inputs_a[v] = 100
-        
-        # Ajuste para evitar empates si comparten variables
         if vars_a: inputs_a[vars_a[0]] += 50 
-
         self._finalize_and_add(var_name, logic_node, inputs_a, f"{prefix}{fname}: Gana Izq")
 
-        # CASO 2: GANA B (Derecha)
+        # GANA B
         inputs_b = base_inputs.copy()
-        # Inflamos B, desinflamos A
         for v in vars_a: inputs_b[v] = 100
         for v in vars_b: inputs_b[v] = 1000
         if vars_b: inputs_b[vars_b[0]] += 50
-
         self._finalize_and_add(var_name, logic_node, inputs_b, f"{prefix}{fname}: Gana Der")
 
     def _solve_pos_case(self, var_name, logic_node, base_inputs, prefix=""):
@@ -167,34 +154,34 @@ class ScenarioBuilder:
         base_val_pos = (len(atoms_negative) or 1) * 100
         base_val_neg = (len(atoms_positive) or 1) * 100
 
-        # CASO 1: POSITIVO
         inputs_p = base_inputs.copy()
         for atom in atoms_positive: inputs_p[atom] = base_val_pos
         for atom in atoms_negative: inputs_p[atom] = base_val_neg
         if atoms_positive: inputs_p[atoms_positive[0]] += 1 
-        
         self._finalize_and_add(var_name, logic_node, inputs_p, f"{prefix}POS > 0")
 
-        # CASO 2: CERO
         inputs_z = base_inputs.copy()
         for atom in atoms_positive: inputs_z[atom] = base_val_pos
         for atom in atoms_negative: inputs_z[atom] = base_val_neg
         if atoms_negative: inputs_z[atoms_negative[0]] += 1
-            
         self._finalize_and_add(var_name, logic_node, inputs_z, f"{prefix}POS = 0")
 
     def _solve_calculation_only(self, var_name, logic, base_inputs, prefix=""):
-        self._finalize_and_add(var_name, logic, base_inputs, f"{prefix}Calc")
+        deps = self._extract_leaf_vars(logic)
+        augmented_inputs = base_inputs.copy()
+        for d in deps:
+            if d not in self.parameters and d != var_name and d not in augmented_inputs:
+                augmented_inputs[d] = 100
+        self._finalize_and_add(var_name, logic, augmented_inputs, f"{prefix}Calc")
 
     def _finalize_and_add(self, var_name, logic, inputs, desc):
-        """Helper final para calcular y agregar"""
         ctx = {**inputs, **self.parameters}
         val = self.math_engine.evaluate(logic, ctx)
         if isinstance(val, float) and val.is_integer(): val = int(val)
         self._add_case(var_name, desc, inputs, str(val))
 
+    # --- UTILIDADES CORE ---
 
-    # --- UTILIDADES CORE (IGUAL QUE ANTES) ---
     def _generate_ok_combinations(self, logic_block):
         and_components = self._flatten_logic(logic_block, "AND")
         component_options = []
@@ -244,7 +231,8 @@ class ScenarioBuilder:
                 ref_val = self.math_engine.evaluate(right_tree, context)
                 broken_val = self._get_broken_value(op, ref_val)
                 if broken_val is not None:
-                    bad_inputs[target] = broken_val
+                    # Aplicamos resolución inversa también aquí para casos NK
+                    self._smart_set_input(bad_inputs, target, broken_val)
                     self._add_case("Cond. NK", f"Fallo forzado en {target} (Bloque #{i+1})", bad_inputs, "No cumple Condición")
             else:
                 description_parts = []
@@ -257,7 +245,7 @@ class ScenarioBuilder:
                     ref_val = self.math_engine.evaluate(right_tree, context)
                     broken_val = self._get_broken_value(op, ref_val)
                     if broken_val is not None:
-                        bad_inputs[target] = broken_val
+                        self._smart_set_input(bad_inputs, target, broken_val)
                         description_parts.append(target)
                     else: possible_sabotage = False
                 if possible_sabotage:
@@ -312,8 +300,27 @@ class ScenarioBuilder:
                 elif op == "=": new_val = target_val
                 elif op == "IN": new_val = p['value'][0]
                 elif op == "≠": new_val = target_val + 1
-                current_inputs[target] = new_val
+                
+                # USAMOS EL SMART SETTER
+                self._smart_set_input(current_inputs, target, new_val)
+                
         return {k: v for k, v in current_inputs.items() if k not in self.parameters}
+
+    def _smart_set_input(self, inputs_dict, target, value):
+        """
+        Asigna valor. Si 'target' es una variable calculada que es solo un alias
+        de un vector (ej: VALOR_10 = Vx011155), asigna el valor al vector original.
+        """
+        # 1. Asignación directa (lo que hacíamos antes)
+        inputs_dict[target] = value
+        
+        # 2. Resolución Inversa (Back-Propagation)
+        if target in self.var_definitions:
+            definition = self.var_definitions[target]
+            # Solo resolvemos si la definición es un átomo (Vector o Código directo)
+            if isinstance(definition, str):
+                # Recursividad por si hay cadenas de alias (A=B, B=C)
+                self._smart_set_input(inputs_dict, definition, value)
 
     def _flatten_logic(self, node, split_op):
         items = []

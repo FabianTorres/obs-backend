@@ -1,9 +1,10 @@
 <<<VARIABLES_PRE>>>
-LALA = VX01155
+VALOR 10 = VX011155
 <<<CONDICION_ENTRADA>>>
 Condición de Entrada:
 (C373 > 0 .y.
-(C19 > 0 .o. C 1111>0 .o. C1641>0))
+(C19 > 0 .o. C 1111>0 .o. C1641>0) .y.
+VALOR 10 > 1)
 
 <<<VARIABLES_POST>>>
 Variables:
@@ -32,28 +33,17 @@ OMEGA=Max{Vx014440; C1795} ,si Vx014648≠8 0 ,si Vx014648=8
 Alfa= Si (Vx013662=1 .y. Vx012602=0) = 0 
       1, Sino
 
+
+TEST_BIN1 = BIN1(C100; C200)
+TEST_BIN2 = BIN2(C100; C200)
+TEST_ABS  = ABS(C300 - 1000)
+TEST_NEG  = NEG(C300 - 1000)
+
 <<<NORMAS>>>
 Norma de Observación 1:
 
 CHI> RHO + P31
 
 DIF = (CHI - RHO )
-DISC = DIF
-RETE = DISC
-
-
-Norma de Observación 2:
-OMEGA> RHO + P31
-
-DIF = (OMEGA– RHO )
-DISC = DIF
-RETE = DISC
-
-
-Norma de observación 3:
-
-ALFA > RHO * OMICRON + P31
-
-DIF = (ALFA - RHO * OMICRON)
 DISC = DIF
 RETE = DISC

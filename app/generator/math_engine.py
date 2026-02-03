@@ -23,19 +23,20 @@ class MathEngine:
         if isinstance(logic_tree, (int, float)):
             return logic_tree
         
-        # 2. Variable / Input
+        # 2. Variable / Input (Strings crudos son Nombres de Variables)
         if isinstance(logic_tree, str):
             name = logic_tree.strip()
-            # Tratamiento especial para "no" o "sino" en condicionales
             if name.lower() in ["no", "sino"]: return 0 
-            return float(context_inputs.get(name, 0))
+            # OJO: Si la variable vale "K" (resultado de M11), lo retornamos tal cual
+            val = context_inputs.get(name, 0)
+            return val
 
         # 3. Estructura Compleja
         if isinstance(logic_tree, dict):
             
-            # SOPORTE PARA CONDICIONALES
-            if "type" in logic_tree:
-                t = logic_tree["type"]
+            # NUEVO: Soporte para Literales de String ("K")
+            if "type" in logic_tree and logic_tree["type"] == "string":
+                return logic_tree["value"]
                 
                 # Unificar lógica de extracción según el tipo de condicional del Transformer
                 cond = None

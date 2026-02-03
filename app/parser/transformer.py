@@ -41,9 +41,13 @@ class ObservacionTransformer(Transformer):
     
     # --- ATOMOS (IGUAL QUE ANTES) ---
     def atom(self, s): return s[0]
-    def var_valor(self, s): return f"VALOR_{s[0]}"
+    def var_valor(self, s): return f"VALOR_{''.join(s)}"
     def var_nombre(self, s): return str(s[0])
     def VECTOR(self, t): return str(t)
     def CODIGO(self, t): return f"C{t.split('C')[-1].strip()}"
     def PARAMETRO(self, t): return str(t)
     def NUMBER(self, t): return float(t) if '.' in t else int(t)
+
+    def string_literal(self, s):
+        # s[0] viene con comillas: "K". Las quitamos con [1:-1]
+        return {"type": "string", "value": s[0][1:-1]}

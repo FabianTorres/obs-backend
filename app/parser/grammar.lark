@@ -7,7 +7,7 @@ section: header instruction_block
 // Definimos headers con alta prioridad
 header: HEADER_CONDICION ":" -> header_condicion
       | HEADER_VARIABLES ":" -> header_variables
-      | HEADER_NORMA DIGIT* ":" -> header_norma
+      | HEADER_NORMA DIGIT* ":" -> header_norma  // <--- ESTRICTO: Solo admite dígitos después del título
 
 instruction_block: (instruction | logic_expr)+
 
@@ -51,23 +51,25 @@ atom: VECTOR
     | CODIGO
     | PARAMETRO
     | NUMBER
+    | ESCAPED_STRING -> string_literal  // <--- Permitimos "K"
     | variable_name
 
 VECTOR: "Vx" "."? DIGIT+
 CODIGO: "C" WS? DIGIT+
 PARAMETRO: "P" DIGIT+
 
-// Tokens reservados para evitar conflictos
+// Tokens reservados
 HEADER_CONDICION.2: /Condición de Entrada/i
 HEADER_VARIABLES.2: /Variables/i
-HEADER_NORMA.2: /Norma de Observación/i
+HEADER_NORMA.2: /Norma de Observación/i  
 
-// Variable name no puede ser una palabra reservada
+// VARIABLE NAME: Usamos CNAME para permitir guiones bajos (TEST_BIN1)
 variable_name: "VALOR"i DIGIT+ -> var_valor
-             | WORD            -> var_nombre
+             | CNAME           -> var_nombre
 
 %import common.DIGIT
-%import common.WORD
+%import common.CNAME
 %import common.NUMBER
+%import common.ESCAPED_STRING
 %import common.WS
 %ignore WS

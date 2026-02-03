@@ -5,30 +5,38 @@
       {
         "op": "AND",
         "left": {
-          "op": ">",
-          "left": "C373",
-          "right": 0
-        },
-        "right": {
-          "op": "OR",
+          "op": "AND",
           "left": {
+            "op": ">",
+            "left": "C373",
+            "right": 0
+          },
+          "right": {
             "op": "OR",
             "left": {
-              "op": ">",
-              "left": "C19",
-              "right": 0
+              "op": "OR",
+              "left": {
+                "op": ">",
+                "left": "C19",
+                "right": 0
+              },
+              "right": {
+                "op": ">",
+                "left": "C1111",
+                "right": 0
+              }
             },
             "right": {
               "op": ">",
-              "left": "C1111",
+              "left": "C1641",
               "right": 0
             }
-          },
-          "right": {
-            "op": ">",
-            "left": "C1641",
-            "right": 0
           }
+        },
+        "right": {
+          "op": ">",
+          "left": "VALOR_10",
+          "right": 1
         }
       }
     ]
@@ -37,8 +45,8 @@
     "section": "Variables",
     "content": [
       {
-        "target": "LALA",
-        "logic": "Vx01155"
+        "target": "VALOR_10",
+        "logic": "Vx011155"
       },
       {
         "target": "CHI",
@@ -371,6 +379,52 @@
           "true": 0,
           "false": 1
         }
+      },
+      {
+        "target": "TEST_BIN1",
+        "logic": {
+          "function": "BIN1",
+          "args": [
+            "C100",
+            "C200"
+          ]
+        }
+      },
+      {
+        "target": "TEST_BIN2",
+        "logic": {
+          "function": "BIN2",
+          "args": [
+            "C100",
+            "C200"
+          ]
+        }
+      },
+      {
+        "target": "TEST_ABS",
+        "logic": {
+          "function": "ABS",
+          "args": [
+            {
+              "op": "-",
+              "left": "C300",
+              "right": 1000
+            }
+          ]
+        }
+      },
+      {
+        "target": "TEST_NEG",
+        "logic": {
+          "function": "NEG",
+          "args": [
+            {
+              "op": "-",
+              "left": "C300",
+              "right": 1000
+            }
+          ]
+        }
       }
     ]
   },
@@ -394,78 +448,6 @@
           "op": "-",
           "left": "CHI",
           "right": "RHO"
-        }
-      },
-      {
-        "target": "DISC",
-        "logic": "DIF"
-      },
-      {
-        "target": "RETE",
-        "logic": "DISC"
-      }
-    ]
-  },
-  {
-    "section": "Norma_Observacion",
-    "content": [
-      {
-        "op": ">",
-        "left": "OMEGA",
-        "right": {
-          "op": "+",
-          "terms": [
-            "RHO",
-            "P31"
-          ]
-        }
-      },
-      {
-        "target": "DIF",
-        "logic": {
-          "op": "-",
-          "left": "OMEGA",
-          "right": "RHO"
-        }
-      },
-      {
-        "target": "DISC",
-        "logic": "DIF"
-      },
-      {
-        "target": "RETE",
-        "logic": "DISC"
-      }
-    ]
-  },
-  {
-    "section": "Norma_Observacion",
-    "content": [
-      {
-        "op": ">",
-        "left": "ALFA",
-        "right": {
-          "op": "+",
-          "terms": [
-            {
-              "op": "*",
-              "left": "RHO",
-              "right": "OMICRON"
-            },
-            "P31"
-          ]
-        }
-      },
-      {
-        "target": "DIF",
-        "logic": {
-          "op": "-",
-          "left": "ALFA",
-          "right": {
-            "op": "*",
-            "left": "RHO",
-            "right": "OMICRON"
-          }
         }
       },
       {
