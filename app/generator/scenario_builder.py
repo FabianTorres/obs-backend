@@ -16,7 +16,6 @@ class ScenarioBuilder:
         
         # 1. Condición de Entrada
         cond_block = self._find_section("Condicion_Entrada")
-        # Genera combinaciones OK (Happy Paths)
         ok_scenarios_inputs = self._generate_ok_combinations(cond_block)
         
         golden_inputs = {} 
@@ -25,19 +24,17 @@ class ScenarioBuilder:
             desc = self._describe_scenario(inputs)
             self._add_case("Cond. OK", f"Camino válido #{i+1}: {desc}", inputs, "Cumple Condición")
 
-        # 2. Casos NK (Sabotaje de Bloques)
+        # 2. Casos NK
         self._generate_nk_cases(cond_block, golden_inputs)
 
-        # 3. VARIABLES (Calculadas, Condicionales y POS)
+        # 3. VARIABLES
         vars_block = self._find_section("Variables")
         self._generate_variable_cases(vars_block, golden_inputs)
 
         # 4. Contexto Completo y Normas
         initial_context = {**golden_inputs, **self.parameters}
-        # Calculamos variables para tener el contexto final
         computed_vars = self._calculate_variables(vars_block, initial_context)
         full_context = {**golden_inputs, **self.parameters, **computed_vars}
-        
         self._generate_norm_cases(full_context)
 
         return self.scenarios
@@ -52,118 +49,166 @@ class ScenarioBuilder:
             target_name = instr["target"]
             logic = instr["logic"]
             
-            # 1. Variables Condicionales (SI / SINO)
-            if isinstance(logic, dict) and "type" in logic and logic["type"].startswith("conditional"):
-                self._solve_conditional_variable(target_name, logic, base_inputs)
-            
-            # 2. Funciones Especiales (POS)
-            elif isinstance(logic, dict) and "function" in logic:
-                fname = logic["function"]
-                if fname == "POS":
-                    self._solve_pos_case(target_name, logic["args"][0], base_inputs)
-                else:
-                    self._solve_calculation_only(target_name, logic, base_inputs)
-            
-            # 3. Cálculo Directo
-            else:
-                self._solve_calculation_only(target_name, logic, base_inputs)
+            # Usamos un despachador centralizado para resolver la lógica
+            self._dispatch_logic_solver(target_name, logic, base_inputs, prefix="")
 
-    def _solve_conditional_variable(self, var_name, logic_node, base_inputs):
-        condition_logic = None
-        if "cond" in logic_node: condition_logic = logic_node["cond"]
-        elif "cond_1" in logic_node: condition_logic = logic_node["cond_1"]
+    def _dispatch_logic_solver(self, target_name, logic, base_inputs, prefix=""):
+        """Decide qué estrategia usar según el tipo de lógica (Condicional, POS, MAX, Simple)"""
         
-        if not condition_logic:
-            self._solve_calculation_only(var_name, logic_node, base_inputs)
+        # 1. Condicionales
+        if isinstance(logic, dict) and "type" in logic and logic["type"].startswith("conditional"):
+            self._solve_conditional_variable(target_name, logic, base_inputs, prefix)
+        
+        # 2. Funciones Especiales
+        elif isinstance(logic, dict) and "function" in logic:
+            fname = logic["function"]
+            if fname == "POS":
+                self._solve_pos_case(target_name, logic, base_inputs, prefix)
+            elif fname in ["MAX", "MIN"]:
+                self._solve_min_max_case(target_name, logic, base_inputs, prefix)
+            else:
+                self._solve_calculation_only(target_name, logic, base_inputs, prefix)
+        
+        # 3. Default
+        else:
+            self._solve_calculation_only(target_name, logic, base_inputs, prefix)
+
+    def _solve_conditional_variable(self, var_name, logic_node, base_inputs, prefix=""):
+        branches_to_test = []
+
+        # Normalización de ramas (Standard vs Piecewise)
+        if "cond" in logic_node:
+            branches_to_test.append({"cond": logic_node["cond"], "val": logic_node["true"], "label": "Branch TRUE"})
+            branches_to_test.append({"cond": None, "val": logic_node["false"], "label": "Branch FALSE"})
+        elif "cond_1" in logic_node:
+            branches_to_test.append({"cond": logic_node["cond_1"], "val": logic_node.get("val_1"), "label": "Rama 1"})
+            if "cond_2" in logic_node and logic_node["cond_2"]:
+                branches_to_test.append({"cond": logic_node["cond_2"], "val": logic_node.get("val_2"), "label": "Rama 2"})
+            else:
+                branches_to_test.append({"cond": None, "val": logic_node.get("val_2"), "label": "Rama Defecto"})
+
+        # Procesar cada rama
+        for branch in branches_to_test:
+            condition = branch["cond"]
+            value_logic = branch["val"] # ¡Aquí está el MAX o el 0!
+            label = f"{prefix}{branch['label']}"
+
+            # 1. Determinar inputs para entrar a la rama
+            branch_inputs_list = []
+            if condition:
+                # Expansión combinatoria para entrar al IF
+                triggers = self._generate_ok_combinations(condition)
+                for t in triggers: branch_inputs_list.append({**base_inputs, **t})
+            else:
+                # Rama else/default usa base inputs
+                branch_inputs_list.append(base_inputs.copy())
+
+            # 2. Para cada forma de entrar, resolver la lógica interna
+            for i, inputs_ctx in enumerate(branch_inputs_list):
+                # Generamos una descripción de qué activó la rama
+                desc_trigger = ""
+                if condition:
+                    actives = [f"{k}={v}" for k,v in inputs_ctx.items() if k not in base_inputs and k not in self.parameters]
+                    if actives: desc_trigger = f" (Trigger: {', '.join(actives)})"
+                
+                final_label = f"{label}{desc_trigger}"
+                
+                # ¡RECURSIVIDAD MÁGICA!
+                # En vez de calcular directo, le pedimos al dispatcher que analice el 'value_logic'.
+                # Si es MAX, generará casos MAX. Si es 0, calculará directo.
+                self._dispatch_logic_solver(var_name, value_logic, inputs_ctx, prefix=f"{final_label} -> ")
+
+    def _solve_min_max_case(self, var_name, logic_node, base_inputs, prefix=""):
+        """Genera casos donde gana el argumento A y casos donde gana B"""
+        fname = logic_node["function"]
+        args = logic_node["args"]
+        
+        # Simplificación: Solo tomamos los 2 primeros argumentos para contrastar
+        if len(args) < 2:
+            self._solve_calculation_only(var_name, logic_node, base_inputs, prefix)
             return
 
-        # CASO A: FORZAR BRANCH TRUE (Usando expansión combinatoria para cubrir ORs internos)
-        possible_trigger_inputs = self._generate_ok_combinations(condition_logic)
+        arg_a = args[0]
+        arg_b = args[1]
         
-        for i, trigger_input in enumerate(possible_trigger_inputs):
-            inputs_true = {**base_inputs, **trigger_input}
-            ctx_true = {**inputs_true, **self.parameters}
-            val_true = self.math_engine.evaluate(logic_node, ctx_true)
-            if isinstance(val_true, float) and val_true.is_integer(): val_true = int(val_true)
-            
-            desc_vars = [f"{k}={v}" for k, v in trigger_input.items() if k not in self.parameters]
-            desc = f"Branch TRUE (Opción {i+1}: {', '.join(desc_vars)})"
-            
-            self._add_case(var_name, desc, inputs_true, str(val_true))
+        vars_a = self._extract_leaf_vars(arg_a)
+        vars_b = self._extract_leaf_vars(arg_b)
 
-        # CASO B: FORZAR BRANCH FALSE
-        inputs_false = base_inputs.copy()
-        ctx_false = {**inputs_false, **self.parameters}
-        val_false = self.math_engine.evaluate(logic_node, ctx_false)
-        if isinstance(val_false, float) and val_false.is_integer(): val_false = int(val_false)
+        # CASO 1: GANA A (Izquierda)
+        inputs_a = base_inputs.copy()
+        # Inflamos A, desinflamos B
+        for v in vars_a: inputs_a[v] = 1000
+        for v in vars_b: inputs_a[v] = 100
         
-        self._add_case(var_name, "Branch FALSE (Condición no cumple)", inputs_false, str(val_false))
+        # Ajuste para evitar empates si comparten variables
+        if vars_a: inputs_a[vars_a[0]] += 50 
 
-    def _solve_pos_case(self, var_name, expression_tree, base_inputs):
-        # Lógica de Balanza para POS (Sensibilidad Alta)
+        self._finalize_and_add(var_name, logic_node, inputs_a, f"{prefix}{fname}: Gana Izq")
+
+        # CASO 2: GANA B (Derecha)
+        inputs_b = base_inputs.copy()
+        # Inflamos B, desinflamos A
+        for v in vars_a: inputs_b[v] = 100
+        for v in vars_b: inputs_b[v] = 1000
+        if vars_b: inputs_b[vars_b[0]] += 50
+
+        self._finalize_and_add(var_name, logic_node, inputs_b, f"{prefix}{fname}: Gana Der")
+
+    def _solve_pos_case(self, var_name, logic_node, base_inputs, prefix=""):
+        expression_tree = logic_node["args"][0]
         atoms_positive = []
         atoms_negative = []
         self._decompose_additive_expression(expression_tree, atoms_positive, atoms_negative)
 
         if not atoms_negative:
-            self._solve_calculation_only(var_name, expression_tree, base_inputs)
+            self._solve_calculation_only(var_name, logic_node, base_inputs, prefix)
             return
 
         base_val_pos = (len(atoms_negative) or 1) * 100
         base_val_neg = (len(atoms_positive) or 1) * 100
 
-        # CASO 1: POSITIVO (Gana por 1)
+        # CASO 1: POSITIVO
         inputs_p = base_inputs.copy()
         for atom in atoms_positive: inputs_p[atom] = base_val_pos
         for atom in atoms_negative: inputs_p[atom] = base_val_neg
         if atoms_positive: inputs_p[atoms_positive[0]] += 1 
         
-        ctx_p = {**inputs_p, **self.parameters}
-        val_p = SII_POS(self._calculate_raw_expression(expression_tree, ctx_p))
-        if isinstance(val_p, float) and val_p.is_integer(): val_p = int(val_p)
-        self._add_case(var_name, "Borde POS > 0 (Diferencia = 1)", inputs_p, str(val_p))
+        self._finalize_and_add(var_name, logic_node, inputs_p, f"{prefix}POS > 0")
 
-        # CASO 2: CERO (Pierde por 1)
+        # CASO 2: CERO
         inputs_z = base_inputs.copy()
         for atom in atoms_positive: inputs_z[atom] = base_val_pos
         for atom in atoms_negative: inputs_z[atom] = base_val_neg
         if atoms_negative: inputs_z[atoms_negative[0]] += 1
             
-        ctx_z = {**inputs_z, **self.parameters}
-        val_z = SII_POS(self._calculate_raw_expression(expression_tree, ctx_z))
-        if isinstance(val_z, float) and val_z.is_integer(): val_z = int(val_z)
-        self._add_case(var_name, "Borde POS = 0 (Negativos ganan por 1)", inputs_z, str(val_z))
+        self._finalize_and_add(var_name, logic_node, inputs_z, f"{prefix}POS = 0")
 
-    def _solve_calculation_only(self, var_name, logic, base_inputs):
-        ctx = {**base_inputs, **self.parameters}
+    def _solve_calculation_only(self, var_name, logic, base_inputs, prefix=""):
+        self._finalize_and_add(var_name, logic, base_inputs, f"{prefix}Calc")
+
+    def _finalize_and_add(self, var_name, logic, inputs, desc):
+        """Helper final para calcular y agregar"""
+        ctx = {**inputs, **self.parameters}
         val = self.math_engine.evaluate(logic, ctx)
         if isinstance(val, float) and val.is_integer(): val = int(val)
-        self._add_case(var_name, "Cálculo estándar (Semilla)", base_inputs, str(val))
+        self._add_case(var_name, desc, inputs, str(val))
 
-    # --- LÓGICA CORE (Expansión y Solver) ---
-    
+
+    # --- UTILIDADES CORE (IGUAL QUE ANTES) ---
     def _generate_ok_combinations(self, logic_block):
         and_components = self._flatten_logic(logic_block, "AND")
         component_options = []
-        
         for comp in and_components:
             or_options = self._flatten_logic(comp, "OR")
-            
-            # EXPANSIÓN: Convertimos (A+B)>0 en [A>0, B>0]
             final_options = []
             for opt in or_options:
-                expanded = self._try_expand_complex_comparison(opt)
-                final_options.extend(expanded)
-
+                final_options.extend(self._try_expand_complex_comparison(opt))
             solved_options = []
             for option in final_options:
                 preds = self._extract_predicates(option)
                 inputs = self._solve_for_true(preds)
-                if inputs:
-                    solved_options.append(inputs)
-            
-            if solved_options:
-                component_options.append(solved_options)
+                if inputs: solved_options.append(inputs)
+            if solved_options: component_options.append(solved_options)
         
         all_combinations = []
         for combo in itertools.product(*component_options):
@@ -173,7 +218,6 @@ class ScenarioBuilder:
         return all_combinations
 
     def _try_expand_complex_comparison(self, logic_node):
-        """Intenta descomponer sumas complejas en opciones individuales"""
         if isinstance(logic_node, dict) and "op" in logic_node:
             op = logic_node["op"]
             if op in [">", ">=", "≠"]:
@@ -183,8 +227,7 @@ class ScenarioBuilder:
                     atoms = self._extract_leaf_vars(left)
                     if len(atoms) > 1:
                         variants = []
-                        for var in atoms:
-                            variants.append({"op": op, "left": var, "right": right})
+                        for var in atoms: variants.append({"op": op, "left": var, "right": right})
                         return variants
         return [logic_node]
 
@@ -193,7 +236,6 @@ class ScenarioBuilder:
         for i, comp in enumerate(and_components):
             bad_inputs = golden_inputs.copy()
             comp_preds = self._extract_predicates(comp)
-            
             if len(comp_preds) == 1:
                 target = comp_preds[0]['target']
                 op = comp_preds[0]['op']
@@ -205,7 +247,6 @@ class ScenarioBuilder:
                     bad_inputs[target] = broken_val
                     self._add_case("Cond. NK", f"Fallo forzado en {target} (Bloque #{i+1})", bad_inputs, "No cumple Condición")
             else:
-                # Lógica para romper grupos OR
                 description_parts = []
                 possible_sabotage = True
                 for p in comp_preds:
@@ -219,13 +260,11 @@ class ScenarioBuilder:
                         bad_inputs[target] = broken_val
                         description_parts.append(target)
                     else: possible_sabotage = False
-                
                 if possible_sabotage:
                     desc = f"Fallo total del Grupo OR ({', '.join(description_parts)})"
                     self._add_case("Cond. NK", desc, bad_inputs, "No cumple Condición")
 
     def _extract_predicates(self, block):
-        """Extrae comparaciones, soportando variables simples y complejas (delegando líder)"""
         preds = []
         if isinstance(block, list):
             for item in block: preds.extend(self._extract_predicates(item))
@@ -233,27 +272,20 @@ class ScenarioBuilder:
             if "op" in block and block["op"] in [">", "<", ">=", "<=", "=", "≠"]:
                 left = block["left"]
                 right = block["right"]
-                
-                # Caso 1: Variable simple a la izquierda
                 if isinstance(left, str):
                     preds.append({"target": left, "op": block["op"], "right_tree": right})
-                
-                # Caso 2: Expresión compleja a la izquierda (A + B > 0)
                 elif isinstance(left, dict):
                     atoms = self._extract_leaf_vars(left)
                     if atoms:
                         leader = atoms[0]
                         preds.append({"target": leader, "op": block["op"], "right_tree": right})
-
             for k, v in block.items():
                 if isinstance(v, (dict, list)): preds.extend(self._extract_predicates(v))
         return preds
 
     def _extract_leaf_vars(self, node):
-        """Busca variables recursivamente, IGNORANDO operadores y metadatos"""
         vars_found = []
         if isinstance(node, str):
-            # Filtro estricto para no capturar operadores como variables
             if len(node) > 0 and node not in ["AND", "OR", "POS", "MIN", "MAX", "si", "no", "sino"]:
                 if node.isalnum() or node.startswith("Vx") or "_" in node:
                     vars_found.append(node)
@@ -261,12 +293,9 @@ class ScenarioBuilder:
             for item in node: vars_found.extend(self._extract_leaf_vars(item))
         elif isinstance(node, dict):
             for k, v in node.items():
-                # Ignoramos claves de metadatos, solo entramos en datos
                 if k in ["op", "function", "type", "section"]: continue
                 vars_found.extend(self._extract_leaf_vars(v))
         return vars_found
-
-    # --- UTILIDADES ---
 
     def _solve_for_true(self, predicates):
         current_inputs = self.parameters.copy()
@@ -281,7 +310,8 @@ class ScenarioBuilder:
                 elif op == "<": new_val = target_val - 1
                 elif op == "<=": new_val = target_val
                 elif op == "=": new_val = target_val
-                elif op == "IN": new_val = p['value'][0] 
+                elif op == "IN": new_val = p['value'][0]
+                elif op == "≠": new_val = target_val + 1
                 current_inputs[target] = new_val
         return {k: v for k, v in current_inputs.items() if k not in self.parameters}
 

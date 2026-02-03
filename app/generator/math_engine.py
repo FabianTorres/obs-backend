@@ -1,4 +1,7 @@
-from app.generator.sii_functions import SII_POS, SII_MIN, SII_MAX
+from app.generator.sii_functions import (
+    SII_POS, SII_MIN, SII_MAX, 
+    SII_BIN1, SII_BIN2, SII_ABS, SII_NEG, SII_M11 
+)
 
 class MathEngine:
     def __init__(self):
@@ -30,7 +33,7 @@ class MathEngine:
         # 3. Estructura Compleja
         if isinstance(logic_tree, dict):
             
-            # --- NUEVO: SOPORTE PARA CONDICIONALES ---
+            # SOPORTE PARA CONDICIONALES
             if "type" in logic_tree:
                 t = logic_tree["type"]
                 
@@ -65,10 +68,21 @@ class MathEngine:
             # --- FUNCIONES ---
             if "function" in logic_tree:
                 fname = logic_tree["function"]
+                # Evaluamos los argumentos recursivamente
                 args = [self._evaluate_recursive(arg, context_inputs) for arg in logic_tree["args"]]
+                
+                # Funciones Básicas
                 if fname == "POS": return SII_POS(args[0])
                 if fname == "MIN": return SII_MIN(*args)
                 if fname == "MAX": return SII_MAX(*args)
+                
+                # Funciones Avanzadas (NUEVAS)
+                if fname == "BIN1": return SII_BIN1(args[0], args[1])
+                if fname == "BIN2": return SII_BIN2(args[0], args[1])
+                if fname == "ABS": return SII_ABS(args[0])
+                if fname == "NEG": return SII_NEG(args[0])
+                if fname == "M11": return SII_M11(args[0])
+                
                 return 0
 
             # --- OPERACIONES ---

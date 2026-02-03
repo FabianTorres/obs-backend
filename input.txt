@@ -1,14 +1,14 @@
+<<<VARIABLES_PRE>>>
+LALA = VX01155
+<<<CONDICION_ENTRADA>>>
 Condición de Entrada:
 (C373 > 0 .y.
 (C19 > 0 .o. C 1111>0 .o. C1641>0))
 
+<<<VARIABLES_POST>>>
 Variables:
 
 CHI= MIN{P704*C18 ;Min( POS{ C19-C898 } ; C373) }
-
-Omega= Min (P647 *C1109; Min(POS(C1111-C898); C373))
-
-Alfa=Min (P84*C1640; Min (POS(C1641-C898); C373))
 
 VALOR 1 = POS ((C986 + C987 + C988 + C792 + C989 + C772) –
 (C990 + C991 + C1001 + C794 + C993 + C811))
@@ -27,11 +27,12 @@ OMICRON= 0, si Vx010599=511 .o. 512, 1, sino
 
 EPSILON= 1 ; (Vx010103 + Vx010137) > 0 0 ; si no
 
-OMEGA={Max{Vx014440; C1795} ,si Vx014648≠8 0 ,si Vx014648=8
+OMEGA=Max{Vx014440; C1795} ,si Vx014648≠8 0 ,si Vx014648=8
 
-Alfa= Si (Vx013662=1 .y. Vx012602=0) = 0 1, Sino
+Alfa= Si (Vx013662=1 .y. Vx012602=0) = 0 
+      1, Sino
 
-
+<<<NORMAS>>>
 Norma de Observación 1:
 
 CHI> RHO + P31

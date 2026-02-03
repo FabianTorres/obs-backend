@@ -37,6 +37,10 @@
     "section": "Variables",
     "content": [
       {
+        "target": "LALA",
+        "logic": "Vx01155"
+      },
+      {
         "target": "CHI",
         "logic": {
           "function": "MIN",
@@ -55,64 +59,6 @@
                     {
                       "op": "-",
                       "left": "C19",
-                      "right": "C898"
-                    }
-                  ]
-                },
-                "C373"
-              ]
-            }
-          ]
-        }
-      },
-      {
-        "target": "Omega",
-        "logic": {
-          "function": "MIN",
-          "args": [
-            {
-              "op": "*",
-              "left": "P647",
-              "right": "C1109"
-            },
-            {
-              "function": "MIN",
-              "args": [
-                {
-                  "function": "POS",
-                  "args": [
-                    {
-                      "op": "-",
-                      "left": "C1111",
-                      "right": "C898"
-                    }
-                  ]
-                },
-                "C373"
-              ]
-            }
-          ]
-        }
-      },
-      {
-        "target": "Alfa",
-        "logic": {
-          "function": "MIN",
-          "args": [
-            {
-              "op": "*",
-              "left": "P84",
-              "right": "C1640"
-            },
-            {
-              "function": "MIN",
-              "args": [
-                {
-                  "function": "POS",
-                  "args": [
-                    {
-                      "op": "-",
-                      "left": "C1641",
                       "right": "C898"
                     }
                   ]
@@ -353,30 +299,24 @@
       {
         "target": "OMICRON",
         "logic": {
-          "type": "conditional_explicit",
-          "val_1": 0,
-          "cond_1": {
+          "type": "conditional",
+          "cond": {
             "op": "OR",
             "left": {
               "op": "=",
               "left": "Vx010599",
               "right": 511
             },
-            "right": {
-              "op": "=",
-              "left": "Vx010599",
-              "right": 512
-            }
+            "right": 512
           },
-          "val_2": 1,
-          "cond_2": "no"
+          "true": 0,
+          "false": 1
         }
       },
       {
         "target": "EPSILON",
         "logic": {
           "type": "conditional",
-          "true": 1,
           "cond": {
             "op": ">",
             "left": {
@@ -388,38 +328,33 @@
             },
             "right": 0
           },
+          "true": 1,
           "false": 0
         }
       },
       {
         "target": "OMEGA",
         "logic": {
-          "type": "conditional_piecewise_pdf",
-          "val_1": {
+          "type": "conditional",
+          "cond": {
+            "op": "≠",
+            "left": "Vx014648",
+            "right": 8
+          },
+          "true": {
             "function": "MAX",
             "args": [
               "Vx014440",
               "C1795"
             ]
           },
-          "cond_1": {
-            "op": "≠",
-            "left": "Vx014648",
-            "right": 8
-          },
-          "val_2": 0,
-          "cond_2": {
-            "op": "=",
-            "left": "Vx014648",
-            "right": 8
-          }
+          "false": 0
         }
       },
       {
         "target": "Alfa",
         "logic": {
           "type": "conditional",
-          "true": 0,
           "cond": {
             "op": "AND",
             "left": {
@@ -433,6 +368,7 @@
               "right": 0
             }
           },
+          "true": 0,
           "false": 1
         }
       }

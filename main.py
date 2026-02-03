@@ -1,117 +1,138 @@
 import os
 import json
+import re
 from lark import Lark, UnexpectedCharacters, UnexpectedToken
 from app.parser.transformer import ObservacionTransformer
+from app.parser.normalizer import Normalizer
 from app.generator.scanner import VariableScanner
-from app.generator.conditions import ConditionExtractor
-from app.generator.test_designer import TestDesigner 
 from app.generator.csv_exporter import CSVExporter
 from app.generator.sii_exporter import SIIExporter
 from app.generator.scenario_builder import ScenarioBuilder
 from app.generator.param_loader import ParamLoader
 
-# --- CONFIGURACION DE RUTAS ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 GRAMMAR_PATH = os.path.join(BASE_DIR, 'app', 'parser', 'grammar.lark')
 INPUT_PATH = os.path.join(BASE_DIR, 'input.txt')
 OUTPUT_DIR = os.path.join(BASE_DIR, 'output')
 PARAM_PATH = os.path.join(BASE_DIR, 'parameters.csv')
-
-# Aseguramos que exista la carpeta de salida
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 def cargar_gramatica():
     try:
-        with open(GRAMMAR_PATH, 'r', encoding='utf-8') as file:
-            return file.read()
-    except FileNotFoundError:
-        print("❌ ERROR CRÍTICO: No encuentro el archivo grammar.lark")
-        exit()
+        with open(GRAMMAR_PATH, 'r', encoding='utf-8') as file: return file.read()
+    except FileNotFoundError: exit()
 
-def guardar_json(nombre_archivo, datos):
-    path = os.path.join(OUTPUT_DIR, nombre_archivo)
-    with open(path, 'w', encoding='utf-8') as f:
-        json.dump(datos, f, indent=2, ensure_ascii=False)
+def guardar_json(nombre, datos):
+    path = os.path.join(OUTPUT_DIR, nombre)
+    with open(path, 'w', encoding='utf-8') as f: json.dump(datos, f, indent=2, ensure_ascii=False)
     return path
 
-# --- EJECUCION PRINCIPAL ---
-if __name__ == "__main__":
-    texto_para_error = "" # Variable auxiliar para el manejo de errores
-    try:
+def leer_input_segmentado(path):
+    with open(path, 'r', encoding='utf-8') as f: content = f.read()
+    def extract(tag):
+        match = re.search(f'<<<{tag}>>>(.*?)($|<<<)', content, re.DOTALL)
+        return match.group(1).strip() if match else ""
+    return {
+        "vars_pre": extract("VARIABLES_PRE"),
+        "cond_entrada": extract("CONDICION_ENTRADA"),
+        "vars_post": extract("VARIABLES_POST"),
+        "normas": extract("NORMAS")
+    }
 
-        # 0. CARGAR PARAMETROS (Fase 1)
+if __name__ == "__main__":
+    try:
         print("📥 Cargando Parámetros...")
         param_loader = ParamLoader(PARAM_PATH)
         parametros_dict = param_loader.load()
-        print(f"   🔹 {len(parametros_dict)} parámetros cargados.")
 
-        # 1. PARSING
+        print("📥 Leyendo segmentos de entrada...")
+        input_data = leer_input_segmentado(INPUT_PATH)
+        
+        print("🧹 Normalizando reglas de negocio...")
+        normalizer = Normalizer()
+        
+        clean_vars_pre = normalizer.clean_section(input_data["vars_pre"], "Variables PRE")
+        clean_cond = normalizer.clean_section(input_data["cond_entrada"], "Condición Entrada")
+        clean_vars_post = normalizer.clean_section(input_data["vars_post"], "Variables POST")
+        clean_normas = normalizer.clean_section(input_data["normas"], "Normas")
+
+        # --- GESTIÓN DE REPORTES DE CALIDAD ---
+        # 1. Archivo JSON para el Frontend (Máquina)
+        path_json_report = guardar_json("reporte_calidad.json", normalizer.report)
+        
+        # 2. Archivo TXT para el Usuario (Humano)
+        path_txt_report = os.path.join(OUTPUT_DIR, "advertencias_sintaxis.txt")
+        critical_count = 0
+        with open(path_txt_report, 'w', encoding='utf-8') as f:
+            if normalizer.report:
+                f.write("="*80 + "\n")
+                f.write("⚠️  REPORTE DE INCIDENCIAS EN EL DOCUMENTO ORIGINAL\n")
+                f.write("="*80 + "\n\n")
+                
+                for item in normalizer.report:
+                    prefix = "[INFO]"
+                    if item['nivel'] == 'CRITICAL': 
+                        prefix = "[⛔ ERROR GRAVE]"
+                        critical_count += 1
+                    elif item['nivel'] == 'WARNING':
+                        prefix = "[⚠️ ADVERTENCIA]"
+                    
+                    f.write(f"{prefix} {item['contexto']}\n")
+                    f.write(f"    {item['mensaje']}\n")
+                    f.write("-" * 40 + "\n")
+            else:
+                f.write("✅ Documento procesado sin incidencias.")
+        
+        # Feedback en consola
+        if critical_count > 0:
+            print(f"\n❌ SE DETECTARON {critical_count} ERRORES GRAVES DE SINTAXIS.")
+            print("   El sistema ha aplicado correcciones automáticas, pero")
+            print("   es OBLIGATORIO revisar 'advertencias_sintaxis.txt'.\n")
+        elif normalizer.report:
+            print(f"\n⚠️  Se detectaron {len(normalizer.report)} advertencias menores.\n")
+        # --------------------------------------
+
+        # ENSAMBLAJE DEL TEXTO MAESTRO
+        texto_maestro = ""
+        if clean_cond: texto_maestro += f"Condición de Entrada: {clean_cond}\n\n"
+        
+        vars_total = []
+        if clean_vars_pre: vars_total.append(clean_vars_pre)
+        if clean_vars_post: vars_total.append(clean_vars_post)
+        if vars_total: texto_maestro += "Variables:\n" + "\n".join(vars_total) + "\n\n"
+        
+        if clean_normas: texto_maestro += clean_normas + "\n"
+
+        # Debug
+        with open(os.path.join(OUTPUT_DIR, "debug_assembler.txt"), 'w', encoding='utf-8') as f:
+            f.write(texto_maestro)
+
+        # PARSING
         grammar_text = cargar_gramatica()
         parser = Lark(grammar_text, start='start', propagate_positions=True)
-        
-        with open(INPUT_PATH, 'r', encoding='utf-8') as f:
-            texto_para_error = f.read() # Guardamos en variable externa por si falla
-        
-        arbol_bruto = parser.parse(texto_para_error)
+        arbol_bruto = parser.parse(texto_maestro)
         transformer = ObservacionTransformer()
         datos_arbol = transformer.transform(arbol_bruto)
 
-        # 2. SCANNER
+        # GENERACIÓN
         scanner = VariableScanner()
         scanner.scan(datos_arbol)
         reporte_vars = scanner.get_report()
 
-        # 3. CONSTRUCTOR DE ESCENARIOS
-        print("🧠 Generando Escenarios de Prueba...")
+        print("🧠 Generando Escenarios...")
         builder = ScenarioBuilder(datos_arbol, parameters=parametros_dict)
         escenarios = builder.build_suite()
 
-        # 4. EXPORTAR A CSV (Formato Excel - Columnas separadas)
         headers = reporte_vars["Vectores_Requeridos"] + reporte_vars["Codigos_Requeridos"]
+        CSVExporter(OUTPUT_DIR).export("casos_de_prueba.csv", headers, escenarios)
+        SIIExporter(OUTPUT_DIR).export("casos_oficiales_sii.txt", headers, escenarios)
         
-        print("💾 Guardando formato Excel...")
-        exporter_csv = CSVExporter(OUTPUT_DIR)
-        path_csv = exporter_csv.export("casos_de_prueba.csv", headers, escenarios)
+        guardar_json("arbol_logico.json", datos_arbol)
         
-        # 5. EXPORTAR A TXT/CSV (Formato SII - Pipe Delimited)
-        print("💾 Guardando formato SII Oficial...")
-        exporter_sii = SIIExporter(OUTPUT_DIR)
-        path_sii = exporter_sii.export("casos_oficiales_sii.txt", headers, escenarios)
+        print("\n✅ PROCESO COMPLETADO")
+        print(f"🚀 {len(escenarios)} escenarios generados.")
 
-        # --- GENERACION DE SALIDAS ---
-        path_arbol = guardar_json("arbol_logico.json", datos_arbol)
-        path_vars = guardar_json("reporte_variables.json", reporte_vars)
-        path_scenarios = guardar_json("escenarios_debug.json", escenarios)
-
-        # --- DASHBOARD ---
-        total_secciones = len(datos_arbol) if isinstance(datos_arbol, list) else 0
-        
-        print("\n✅ PROCESO COMPLETADO EXITOSAMENTE")
-        print("="*40)
-        print(f"📊 ESTADÍSTICAS DEL ALGORITMO")
-        print("="*40)
-        print(f"🔹 Secciones Identificadas : {total_secciones}")
-        print("-" * 40)
-        print(f"🔹 Vectores (Inputs)       : {len(reporte_vars['Vectores_Requeridos'])}")
-        print(f"🔹 Códigos F22 (Inputs)    : {len(reporte_vars['Codigos_Requeridos'])}")
-        print(f"🔹 Variables Calculadas    : {len(reporte_vars['Variables_Calculadas'])}")
-        print(f"🔹 Parámetros Cargados     : {len(parametros_dict)}")
-        print("-" * 40)
-        print(f"🚀 ESCENARIOS GENERADOS    : {len(escenarios)}")
-        print("="*40)
-        print("\n📂 Archivos generados:")
-        print(f"   1. {path_csv}")
-        print(f"   2. {path_sii}")
-        print(f"   3. {path_scenarios}")
-
-    except UnexpectedCharacters as e:
-        print(f"\n❌ ERROR DE CARACTER en Línea {e.line}, Columna {e.column}")
-        print(f"Contexto:\n{e.get_context(texto_para_error)}")
-    except UnexpectedToken as e:
-        print(f"\n❌ ERROR DE SINTAXIS en Línea {e.line}, Columna {e.column}")
-        print(f"Contexto:\n{e.get_context(texto_para_error)}")
     except Exception as e:
-        # Imprimimos el error completo para debuggear mejor si pasa algo más
         import traceback
         traceback.print_exc()
-        print(f"\n❌ ERROR GENERAL: {e}")
+        print(f"\n❌ ERROR FATAL: {e}")

@@ -1,0 +1,7 @@
+================================================================================
+⚠️  REPORTE DE INCIDENCIAS EN EL DOCUMENTO ORIGINAL
+================================================================================
+
+[⛔ ERROR GRAVE] Variables PRE -> LALA
+    AMBIGÜEDAD GRAVE: El vector 'VX01155' tiene 5 dígitos. Se requieren exactamente 6 dígitos (ej: Vx011555). NO SE PUEDE DETERMINAR QUÉ VECTOR ES.
+----------------------------------------

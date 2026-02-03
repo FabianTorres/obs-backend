@@ -1,41 +1,35 @@
-// --- ESTRUCTURA MACRO ---
+// --- GRAMÁTICA ESTILO EXCEL (ROBUSTA) ---
+
 start: section+
 
 section: header instruction_block
 
-header: /Condición de Entrada/i ":" -> header_condicion
-      | /Variables/i ":"            -> header_variables
-      | /Norma de Observación/i DIGIT* ":" -> header_norma
+// Definimos headers con alta prioridad
+header: HEADER_CONDICION ":" -> header_condicion
+      | HEADER_VARIABLES ":" -> header_variables
+      | HEADER_NORMA DIGIT* ":" -> header_norma
 
 instruction_block: (instruction | logic_expr)+
 
-instruction: variable_name "=" value_definition
+instruction: variable_name "=" expression
 
-// --- DEFINICIONES DE VALOR ---
-?value_definition: ternary_piecewise
-                 | ternary_explicit
-                 | ternary_brace
-                 | ternary_prefix
-                 | ternary_comma
-                 | ternary_semi
-                 | logic_expr
+// --- LÓGICA Y MATEMÁTICA ---
+?expression: logic_expr
 
-// --- LOGICA Y MATEMATICA ---
 ?logic_expr: logic_term
-           | logic_expr ".o." logic_term -> or_op
-           | logic_expr ".y." logic_term -> and_op
+           | logic_expr "O" logic_term -> or_op
+           | logic_expr "Y" logic_term -> and_op
 
 ?logic_term: comparison
 
-?comparison: expression
-           | expression COMP_OP expression
+?comparison: arithmetic_expr
+           | arithmetic_expr COMP_OP arithmetic_expr
 
 COMP_OP: ">=" | "<=" | ">" | "<" | "=" | "≠" | "<>"
 
-?expression: term
-           | expression "+" term -> suma
-           | expression "-" term -> resta
-           | expression "–" term -> resta 
+?arithmetic_expr: term
+                | arithmetic_expr "+" term -> suma
+                | arithmetic_expr "-" term -> resta
 
 ?term: factor
      | term "*" factor -> multi
@@ -44,44 +38,15 @@ COMP_OP: ">=" | "<=" | ">" | "<" | "=" | "≠" | "<>"
 ?factor: atom
        | function_call
        | "(" logic_expr ")"
-       | "{" logic_expr "}" 
 
 // --- FUNCIONES ---
+function_call: FUNC_NAME "(" args ")"
 
-function_call: FUNC_NAME "(" args ")" 
-             | FUNC_NAME "{" args "}"
+args: expression (";" expression)*
 
-// AQUI ESTABA EL ERROR: He dejado lineas vacias para asegurar la separacion
+FUNC_NAME: "MIN" | "MAX" | "POS" | "SI" | "BIN1" | "BIN2" | "ABS" | "NEG" | "M11"
 
-args: logic_expr (separator logic_expr)*
-
-separator: ";" | ","
-
-FUNC_NAME: "MIN"i | "MAX"i | "POS"i 
-
-// --- REGLAS DE CONDICIONALES ---
-
-// Caso PDF Roto: { Val ,si Cond ...
-ternary_piecewise: "{" logic_expr separator? "si" logic_expr separator? logic_expr separator? "si" logic_expr "}"?
-
-// Dialecto OMEGA
-ternary_explicit: logic_expr separator? "si" logic_expr separator? logic_expr separator? "si" logic_expr
-
-// Dialecto ALFA
-ternary_prefix: "Si" logic_expr "=" logic_expr separator? logic_expr separator? sino_block
-
-// Dialecto FHI
-ternary_brace: "{" logic_expr separator "si" logic_expr separator? logic_expr separator? sino_block "}"
-
-// Dialecto OMICRON
-ternary_comma: logic_expr "," "si" logic_expr ["," logic_expr "," "sino"]
-
-// Dialecto EPSILON
-ternary_semi: logic_expr ";" logic_expr logic_expr ";" sino_block
-
-sino_block: "si" "no" | "sino" | "Sino"
-
-// --- ATOMOS ---
+// --- ATOMOS Y VARIABLES ---
 atom: VECTOR
     | CODIGO
     | PARAMETRO
@@ -92,8 +57,14 @@ VECTOR: "Vx" "."? DIGIT+
 CODIGO: "C" WS? DIGIT+
 PARAMETRO: "P" DIGIT+
 
-variable_name: "VALOR"i DIGIT+    -> var_valor
-             | WORD               -> var_nombre
+// Tokens reservados para evitar conflictos
+HEADER_CONDICION.2: /Condición de Entrada/i
+HEADER_VARIABLES.2: /Variables/i
+HEADER_NORMA.2: /Norma de Observación/i
+
+// Variable name no puede ser una palabra reservada
+variable_name: "VALOR"i DIGIT+ -> var_valor
+             | WORD            -> var_nombre
 
 %import common.DIGIT
 %import common.WORD
