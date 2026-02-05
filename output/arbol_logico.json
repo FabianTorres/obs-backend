@@ -8,7 +8,7 @@
           "op": "AND",
           "left": {
             "op": ">",
-            "left": "C2007",
+            "left": "C2006",
             "right": 0
           },
           "right": {
@@ -69,22 +69,6 @@
     "section": "Variables",
     "content": [
       {
-        "target": "BETA",
-        "logic": {
-          "op": "+",
-          "terms": [
-            {
-              "op": "+",
-              "terms": [
-                "Vx014734",
-                "Vx014735"
-              ]
-            },
-            "Vx014736"
-          ]
-        }
-      },
-      {
         "target": "ÉPSILON",
         "logic": {
           "op": "+",
@@ -95,38 +79,14 @@
                 {
                   "op": "+",
                   "terms": [
-                    {
-                      "op": "+",
-                      "terms": [
-                        {
-                          "op": "+",
-                          "terms": [
-                            {
-                              "op": "+",
-                              "terms": [
-                                {
-                                  "op": "+",
-                                  "terms": [
-                                    "C1276",
-                                    "C1277"
-                                  ]
-                                },
-                                "C1331"
-                              ]
-                            },
-                            "C1332"
-                          ]
-                        },
-                        "C1539"
-                      ]
-                    },
-                    "C1549"
+                    "C1309",
+                    "C1310"
                   ]
                 },
-                "C1544"
+                "C1542"
               ]
             },
-            "C1554"
+            "C1552"
           ]
         }
       }
@@ -137,14 +97,14 @@
     "content": [
       {
         "op": ">",
-        "left": "C2007",
+        "left": "C2006",
         "right": {
           "op": "+",
           "terms": [
             {
               "function": "MAX",
               "args": [
-                "BETA",
+                "Vx014737",
                 "ÉPSILON"
               ]
             },
@@ -159,11 +119,11 @@
           "args": [
             {
               "op": "-",
-              "left": "C2007",
+              "left": "C2006",
               "right": {
                 "function": "MAX",
                 "args": [
-                  "BETA",
+                  "Vx014737",
                   "ÉPSILON"
                 ]
               }

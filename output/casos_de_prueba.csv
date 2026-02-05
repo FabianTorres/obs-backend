@@ -1,18 +1,17 @@
-﻿ID_Caso,Tipo,Descripcion,Resultado_Esperado,Vx42,Vx599,Vx4734,Vx4735,Vx4736,[1276],[1277],[1331],[1332],[1539],[1544],[1549],[1554],[2007]
-11467,Cond. OK,"Camino válido #1: Activando C2007, Vx010599, Vx010042...",Cumple Condición,1,111,,,,,,,,,,,,1
-11468,Cond. OK,"Camino válido #2: Activando C2007, Vx010599, Vx010042...",Cumple Condición,1,112,,,,,,,,,,,,1
-11469,Cond. OK,"Camino válido #3: Activando C2007, Vx010599, Vx010042...",Cumple Condición,1,113,,,,,,,,,,,,1
-11470,Cond. OK,"Camino válido #4: Activando C2007, Vx010599, Vx010042...",Cumple Condición,1,114,,,,,,,,,,,,1
-11471,Cond. OK,"Camino válido #5: Activando C2007, Vx010599, Vx010042...",Cumple Condición,1,115,,,,,,,,,,,,1
-11472,Cond. OK,"Camino válido #6: Activando C2007, Vx010599, Vx010042...",Cumple Condición,1,116,,,,,,,,,,,,1
-11473,Cond. NK,Fallo forzado en C2007 (Bloque #1),No cumple Condición,1,111,,,,,,,,,,,,0
-11474,Cond. NK,"Fallo total del Grupo OR (Vx010599, Vx010599, Vx010599, Vx010599, Vx010599, Vx010599)",No cumple Condición,1,117,,,,,,,,,,,,1
-11475,Cond. NK,Fallo forzado en Vx010042 (Bloque #3),No cumple Condición,2,111,,,,,,,,,,,,1
-11476,BETA,Calc,300,1,111,100,100,100,,,,,,,,,1
-11477,ÉPSILON,Calc,800,1,111,,,,100,100,100,100,100,100,100,100,1
-11478,Norma OK,Borde Cumple (Gana BETA) (C2007=4501.0 vs 4500),DIF=1501 DISC=0 RETE=0,1,111,1000,1000,1000,10,10,10,10,10,10,10,10,4501.0
-11479,Norma NK,Borde No Cumple (Gana BETA) (C2007=4500.0 vs 4500),No cumple Norma,1,111,1000,1000,1000,10,10,10,10,10,10,10,10,4500.0
-11480,Valida POS=0,Prueba Interna (Gana BETA) (Forzando C2007=1),No cumple Norma,1,111,1000,1000,1000,10,10,10,10,10,10,10,10,1
-11481,Norma OK,Borde Cumple (Gana ÉPSILON) (C2007=9501.0 vs 9500),DIF=1501 DISC=0 RETE=0,1,111,10,10,10,1000,1000,1000,1000,1000,1000,1000,1000,9501.0
-11482,Norma NK,Borde No Cumple (Gana ÉPSILON) (C2007=9500.0 vs 9500),No cumple Norma,1,111,10,10,10,1000,1000,1000,1000,1000,1000,1000,1000,9500.0
-11483,Valida POS=0,Prueba Interna (Gana ÉPSILON) (Forzando C2007=1),No cumple Norma,1,111,10,10,10,1000,1000,1000,1000,1000,1000,1000,1000,1
+﻿ID_Caso,Tipo,Descripcion,Resultado_Esperado,Vx42,Vx599,Vx4737,[1309],[1310],[1542],[1552],[2006]
+11467,Cond. OK,"Camino válido #1: Activando C2006, Vx010599, Vx010042...",Cumple Condición,1,111,,,,,,1
+11468,Cond. OK,"Camino válido #2: Activando C2006, Vx010599, Vx010042...",Cumple Condición,1,112,,,,,,1
+11469,Cond. OK,"Camino válido #3: Activando C2006, Vx010599, Vx010042...",Cumple Condición,1,113,,,,,,1
+11470,Cond. OK,"Camino válido #4: Activando C2006, Vx010599, Vx010042...",Cumple Condición,1,114,,,,,,1
+11471,Cond. OK,"Camino válido #5: Activando C2006, Vx010599, Vx010042...",Cumple Condición,1,115,,,,,,1
+11472,Cond. OK,"Camino válido #6: Activando C2006, Vx010599, Vx010042...",Cumple Condición,1,116,,,,,,1
+11473,Cond. NK,Fallo forzado en C2006 (Bloque #1),No cumple Condición,1,111,,,,,,0
+11474,Cond. NK,"Fallo total del Grupo OR (Vx010599, Vx010599, Vx010599, Vx010599, Vx010599, Vx010599)",No cumple Condición,1,117,,,,,,1
+11475,Cond. NK,Fallo forzado en Vx010042 (Bloque #3),No cumple Condición,2,111,,,,,,1
+11476,ÉPSILON,Calc,400,1,111,,100,100,100,100,1
+11477,Norma OK,Borde Cumple (Gana Vx014737) (C2006=2501.0 vs 2500),DIF=1501 DISC=0 RETE=0,1,111,1000,10,10,10,10,2501.0
+11478,Norma NK,Borde No Cumple (Gana Vx014737) (C2006=2500.0 vs 2500),No cumple Norma,1,111,1000,10,10,10,10,2500.0
+11479,Valida POS=0,Prueba Interna (Gana Vx014737) (Forzando C2006=1),No cumple Norma,1,111,1000,10,10,10,10,1
+11480,Norma OK,Borde Cumple (Gana ÉPSILON) (C2006=5501.0 vs 5500),DIF=1501 DISC=0 RETE=0,1,111,10,1000,1000,1000,1000,5501.0
+11481,Norma NK,Borde No Cumple (Gana ÉPSILON) (C2006=5500.0 vs 5500),No cumple Norma,1,111,10,1000,1000,1000,1000,5500.0
+11482,Valida POS=0,Prueba Interna (Gana ÉPSILON) (Forzando C2006=1),No cumple Norma,1,111,10,1000,1000,1000,1000,1

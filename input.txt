@@ -1,22 +1,22 @@
 <<<VARIABLES_PRE>>>
 
 <<<CONDICION_ENTRADA>>>
-Condición de Entrada:
-C2007 > 0 
-.y. 
-(Vx010599 = 111 .o. 112 .o. 113 .o. 114 .o.  115 .o. 116) 
-.y. 
-Vx010042=1  
+C2006 > 0 
+ 
+.y.(Vx010599 = 111 .o. 112 .o. 113 .o. 114 .o. 115 .o. 116.)
+ 
+.y. Vx010042=1 
 
 <<<VARIABLES_POST>>>
-Beta= VX014734 + VX014735 + VX014736 
- 
-épsilon = (C1276+C1277+C1331+C1332+C1539+C1549+C1544+C1554) 
+épsilon = (C1309 + C1310 + C1542 + C1552) 
 
 <<<NORMAS>>>
-Norma de Observación 1: 
-C2007 > Max (beta; épsilon) + P31   
+Norma de Observación: 
  
-DIF= POS {C2007 - Max (beta; épsilon)} 
-DISC= DIF 
-RETE=DISC 
+C2006 > Max (Vx014737; épsilon) + P31  
+ 
+DIF= Pos (C2006 - Max (Vx014737; épsilon)) 
+ 
+DISC=DIF 
+ 
+RETE= DISC
