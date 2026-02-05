@@ -127,6 +127,43 @@ class Normalizer:
         # 3. Parámetros: p100 -> P100
         text = re.sub(r'\b[pP]\s*(\d+)', r'P\1', text)
 
+        # FASE 0.5: Expansión de "Shorthand OR" (CORREGIDO)
+        # Vx=1 .o. 2 -> Vx=1 .o. Vx=2
+        # Estrategia: Buscar (Var=Val) .o. (Val_Solo)
+        # Val_Solo no debe contener un signo '='
+        
+        for _ in range(10): # Límite de seguridad
+            # Regex Explicado:
+            # 1. (\b[a-zA-Z_]\w*\s*=\s*[\w\.]+)  -> Captura "Vx=111" (Grupo 1)
+            # 2. \s*\.[oO]\.\s* -> Captura " .o. "
+            # 3. (?!.*=)                          -> Lookahead negativo (asegura que lo que sigue no es una asignación)
+            # 4. (\d+)                            -> Captura el número "112" (Grupo 2)
+            
+            # Nota: Simplificamos para capturar el nombre de la variable del Grupo 1
+            
+            # Nueva lógica más segura usando re.sub con función lambda
+            def expand_or(match):
+                full_assign = match.group(1)   # Ej: Vx010599=111
+                var_name = full_assign.split('=')[0].strip() # Ej: Vx010599
+                next_val = match.group(2)      # Ej: 112
+                
+                # Si el siguiente valor ya tiene un '=', no lo tocamos (evita bucles)
+                if '=' in next_val: 
+                    return match.group(0)
+                
+                return f"{full_assign} .o. {var_name}={next_val}"
+
+            # Regex: Busca "Algo=Algo .o. Algo"
+            # Grupo 1: Todo lo anterior al .o.
+            # Grupo 2: Lo que está después del .o. (hasta el próximo espacio o fin)
+            pattern = r'(\b[a-zA-Z_]\w*\s*=\s*[\w\.]+)\s*\.[oO]\.\s*(\d+)'
+            
+            new_text = re.sub(pattern, expand_or, text, flags=re.IGNORECASE)
+            
+            if new_text == text:
+                break
+            text = new_text
+
         # FASE 1: Operadores
         text = re.sub(r'\s*\.[yY]\.\s*', ' Y ', text)
         text = re.sub(r'\s*\.[oO]\.\s*', ' O ', text)

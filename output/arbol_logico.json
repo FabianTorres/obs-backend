@@ -8,7 +8,7 @@
           "op": "AND",
           "left": {
             "op": ">",
-            "left": "C373",
+            "left": "C2007",
             "right": 0
           },
           "right": {
@@ -16,26 +16,50 @@
             "left": {
               "op": "OR",
               "left": {
-                "op": ">",
-                "left": "C19",
-                "right": 0
+                "op": "OR",
+                "left": {
+                  "op": "OR",
+                  "left": {
+                    "op": "OR",
+                    "left": {
+                      "op": "=",
+                      "left": "Vx010599",
+                      "right": 111
+                    },
+                    "right": {
+                      "op": "=",
+                      "left": "Vx010599",
+                      "right": 112
+                    }
+                  },
+                  "right": {
+                    "op": "=",
+                    "left": "Vx010599",
+                    "right": 113
+                  }
+                },
+                "right": {
+                  "op": "=",
+                  "left": "Vx010599",
+                  "right": 114
+                }
               },
               "right": {
-                "op": ">",
-                "left": "C1111",
-                "right": 0
+                "op": "=",
+                "left": "Vx010599",
+                "right": 115
               }
             },
             "right": {
-              "op": ">",
-              "left": "C1641",
-              "right": 0
+              "op": "=",
+              "left": "Vx010599",
+              "right": 116
             }
           }
         },
         "right": {
-          "op": ">",
-          "left": "VALOR_10",
+          "op": "=",
+          "left": "Vx010042",
           "right": 1
         }
       }
@@ -45,384 +69,64 @@
     "section": "Variables",
     "content": [
       {
-        "target": "VALOR_10",
-        "logic": "Vx011155"
-      },
-      {
-        "target": "CHI",
+        "target": "BETA",
         "logic": {
-          "function": "MIN",
-          "args": [
+          "op": "+",
+          "terms": [
             {
-              "op": "*",
-              "left": "P704",
-              "right": "C18"
-            },
-            {
-              "function": "MIN",
-              "args": [
-                {
-                  "function": "POS",
-                  "args": [
-                    {
-                      "op": "-",
-                      "left": "C19",
-                      "right": "C898"
-                    }
-                  ]
-                },
-                "C373"
-              ]
-            }
-          ]
-        }
-      },
-      {
-        "target": "VALOR_1",
-        "logic": {
-          "function": "POS",
-          "args": [
-            {
-              "op": "-",
-              "left": {
-                "op": "+",
-                "terms": [
-                  {
-                    "op": "+",
-                    "terms": [
-                      {
-                        "op": "+",
-                        "terms": [
-                          {
-                            "op": "+",
-                            "terms": [
-                              {
-                                "op": "+",
-                                "terms": [
-                                  "C986",
-                                  "C987"
-                                ]
-                              },
-                              "C988"
-                            ]
-                          },
-                          "C792"
-                        ]
-                      },
-                      "C989"
-                    ]
-                  },
-                  "C772"
-                ]
-              },
-              "right": {
-                "op": "+",
-                "terms": [
-                  {
-                    "op": "+",
-                    "terms": [
-                      {
-                        "op": "+",
-                        "terms": [
-                          {
-                            "op": "+",
-                            "terms": [
-                              {
-                                "op": "+",
-                                "terms": [
-                                  "C990",
-                                  "C991"
-                                ]
-                              },
-                              "C1001"
-                            ]
-                          },
-                          "C794"
-                        ]
-                      },
-                      "C993"
-                    ]
-                  },
-                  "C811"
-                ]
-              }
-            }
-          ]
-        }
-      },
-      {
-        "target": "VALOR_2",
-        "logic": {
-          "function": "POS",
-          "args": [
-            {
-              "op": "-",
-              "left": {
-                "op": "+",
-                "terms": [
-                  {
-                    "op": "+",
-                    "terms": [
-                      {
-                        "op": "+",
-                        "terms": [
-                          {
-                            "op": "+",
-                            "terms": [
-                              {
-                                "op": "+",
-                                "terms": [
-                                  "C990",
-                                  "C991"
-                                ]
-                              },
-                              "C1001"
-                            ]
-                          },
-                          "C794"
-                        ]
-                      },
-                      "C993"
-                    ]
-                  },
-                  "C811"
-                ]
-              },
-              "right": {
-                "op": "+",
-                "terms": [
-                  {
-                    "op": "+",
-                    "terms": [
-                      {
-                        "op": "+",
-                        "terms": [
-                          {
-                            "op": "+",
-                            "terms": [
-                              "C373",
-                              "C382"
-                            ]
-                          },
-                          "C761"
-                        ]
-                      },
-                      "C773"
-                    ]
-                  },
-                  "C384"
-                ]
-              }
-            }
-          ]
-        }
-      },
-      {
-        "target": "KAPPA",
-        "logic": {
-          "function": "MIN",
-          "args": [
-            "Vx014639",
-            {
-              "function": "MAX",
-              "args": [
-                {
-                  "op": "*",
-                  "left": {
-                    "function": "POS",
-                    "args": [
-                      {
-                        "op": "+",
-                        "terms": [
-                          {
-                            "op": "+",
-                            "terms": [
-                              {
-                                "op": "+",
-                                "terms": [
-                                  "C1690",
-                                  "C1440"
-                                ]
-                              },
-                              "VALOR_1"
-                            ]
-                          },
-                          "VALOR_2"
-                        ]
-                      }
-                    ]
-                  },
-                  "right": "P11"
-                },
-                {
-                  "function": "MAX",
-                  "args": [
-                    {
-                      "op": "*",
-                      "left": "C645",
-                      "right": "P345"
-                    },
-                    {
-                      "op": "*",
-                      "left": "C1545",
-                      "right": "P345"
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      },
-      {
-        "target": "RHO",
-        "logic": {
-          "function": "MIN",
-          "args": [
-            {
-              "op": "*",
-              "left": "KAPPA",
-              "right": "P02"
-            },
-            {
-              "op": "*",
-              "left": {
-                "function": "POS",
-                "args": [
-                  {
-                    "op": "+",
-                    "terms": [
-                      "C1690",
-                      "C1440"
-                    ]
-                  }
-                ]
-              },
-              "right": "P17"
-            },
-            "P525"
-          ]
-        }
-      },
-      {
-        "target": "OMICRON",
-        "logic": {
-          "type": "conditional",
-          "cond": {
-            "op": "OR",
-            "left": {
-              "op": "=",
-              "left": "Vx010599",
-              "right": 511
-            },
-            "right": 512
-          },
-          "true": 0,
-          "false": 1
-        }
-      },
-      {
-        "target": "EPSILON",
-        "logic": {
-          "type": "conditional",
-          "cond": {
-            "op": ">",
-            "left": {
               "op": "+",
               "terms": [
-                "Vx010103",
-                "Vx010137"
+                "Vx014734",
+                "Vx014735"
               ]
             },
-            "right": 0
-          },
-          "true": 1,
-          "false": 0
+            "Vx014736"
+          ]
         }
       },
       {
-        "target": "OMEGA",
+        "target": "ÉPSILON",
         "logic": {
-          "type": "conditional",
-          "cond": {
-            "op": "≠",
-            "left": "Vx014648",
-            "right": 8
-          },
-          "true": {
-            "function": "MAX",
-            "args": [
-              "Vx014440",
-              "C1795"
-            ]
-          },
-          "false": 0
-        }
-      },
-      {
-        "target": "Alfa",
-        "logic": {
-          "type": "conditional",
-          "cond": {
-            "op": "AND",
-            "left": {
-              "op": "=",
-              "left": "Vx013662",
-              "right": 1
+          "op": "+",
+          "terms": [
+            {
+              "op": "+",
+              "terms": [
+                {
+                  "op": "+",
+                  "terms": [
+                    {
+                      "op": "+",
+                      "terms": [
+                        {
+                          "op": "+",
+                          "terms": [
+                            {
+                              "op": "+",
+                              "terms": [
+                                {
+                                  "op": "+",
+                                  "terms": [
+                                    "C1276",
+                                    "C1277"
+                                  ]
+                                },
+                                "C1331"
+                              ]
+                            },
+                            "C1332"
+                          ]
+                        },
+                        "C1539"
+                      ]
+                    },
+                    "C1549"
+                  ]
+                },
+                "C1544"
+              ]
             },
-            "right": {
-              "op": "=",
-              "left": "Vx012602",
-              "right": 0
-            }
-          },
-          "true": 0,
-          "false": 1
-        }
-      },
-      {
-        "target": "TEST_BIN1",
-        "logic": {
-          "function": "BIN1",
-          "args": [
-            "C100",
-            "C200"
-          ]
-        }
-      },
-      {
-        "target": "TEST_BIN2",
-        "logic": {
-          "function": "BIN2",
-          "args": [
-            "C100",
-            "C200"
-          ]
-        }
-      },
-      {
-        "target": "TEST_ABS",
-        "logic": {
-          "function": "ABS",
-          "args": [
-            {
-              "op": "-",
-              "left": "C300",
-              "right": 1000
-            }
-          ]
-        }
-      },
-      {
-        "target": "TEST_NEG",
-        "logic": {
-          "function": "NEG",
-          "args": [
-            {
-              "op": "-",
-              "left": "C300",
-              "right": 1000
-            }
+            "C1554"
           ]
         }
       }
@@ -433,11 +137,17 @@
     "content": [
       {
         "op": ">",
-        "left": "CHI",
+        "left": "C2007",
         "right": {
           "op": "+",
           "terms": [
-            "RHO",
+            {
+              "function": "MAX",
+              "args": [
+                "BETA",
+                "ÉPSILON"
+              ]
+            },
             "P31"
           ]
         }
@@ -445,9 +155,20 @@
       {
         "target": "DIF",
         "logic": {
-          "op": "-",
-          "left": "CHI",
-          "right": "RHO"
+          "function": "POS",
+          "args": [
+            {
+              "op": "-",
+              "left": "C2007",
+              "right": {
+                "function": "MAX",
+                "args": [
+                  "BETA",
+                  "ÉPSILON"
+                ]
+              }
+            }
+          ]
         }
       },
       {

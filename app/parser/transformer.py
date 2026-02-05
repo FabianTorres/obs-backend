@@ -42,7 +42,8 @@ class ObservacionTransformer(Transformer):
     # --- ATOMOS (IGUAL QUE ANTES) ---
     def atom(self, s): return s[0]
     def var_valor(self, s): return f"VALOR_{''.join(s)}"
-    def var_nombre(self, s): return str(s[0])
+    def var_nombre(self, s): 
+        return str(s[0]).upper()
     def VECTOR(self, t): return str(t)
     def CODIGO(self, t): return f"C{t.split('C')[-1].strip()}"
     def PARAMETRO(self, t): return str(t)

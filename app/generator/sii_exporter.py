@@ -12,6 +12,12 @@ class SIIExporter:
         """
         path = os.path.join(self.output_dir, filename)
         
+        # --- MAPA DE TRADUCCIÓN (NUEVO) ---
+        # Convierte tipos internos de debug a tipos oficiales del SII
+        TYPE_MAPPING = {
+            "Valida POS=0": "Norma NK",
+        }
+
         # Encabezado del archivo
         header_row = "Numero de caso|Tipo de caso|Datos de prueba|Resultado\n"
         
@@ -25,8 +31,12 @@ class SIIExporter:
                 # 2. Formatear Resultado (limpieza básica)
                 resultado = str(scen.get("Resultado_Esperado", "")).replace("\n", " ")
 
-                # 3. Construir la línea final
-                line = f"{scen['ID_Caso']}|{scen['Tipo']}|{input_string}|{resultado}\n"
+                # 3. Traducir Tipo de Caso (NUEVO LÓGICA)
+                tipo_original = scen['Tipo']
+                tipo_final = TYPE_MAPPING.get(tipo_original, tipo_original)
+
+                # 4. Construir la línea final
+                line = f"{scen['ID_Caso']}|{tipo_final}|{input_string}|{resultado}\n"
                 f.write(line)
         
         return path

@@ -51,7 +51,7 @@ atom: VECTOR
     | CODIGO
     | PARAMETRO
     | NUMBER
-    | ESCAPED_STRING -> string_literal  // <--- Permitimos "K"
+    | ESCAPED_STRING -> string_literal
     | variable_name
 
 VECTOR: "Vx" "."? DIGIT+
@@ -61,14 +61,18 @@ PARAMETRO: "P" DIGIT+
 // Tokens reservados
 HEADER_CONDICION.2: /Condición de Entrada/i
 HEADER_VARIABLES.2: /Variables/i
-HEADER_NORMA.2: /Norma de Observación/i  
+HEADER_NORMA.2: /Norma de Observación/i
 
-// VARIABLE NAME: Usamos CNAME para permitir guiones bajos (TEST_BIN1)
+// Se define un nombre que acepte letras en español (áéíóúñÑüÜ)
+// Empieza con letra/guion, sigue con letras/numeros/guiones
+NOMBRE_VAR: /[a-zA-Z_áéíóúÁÉÍÓÚñÑüÜ][a-zA-Z0-9_áéíóúÁÉÍÓÚñÑüÜ]*/
+
+// VARIABLE NAME: Se usa nuestro token personalizado
 variable_name: "VALOR"i DIGIT+ -> var_valor
-             | CNAME           -> var_nombre
+             | NOMBRE_VAR      -> var_nombre
 
 %import common.DIGIT
-%import common.CNAME
+// %import common.CNAME
 %import common.NUMBER
 %import common.ESCAPED_STRING
 %import common.WS
