@@ -7,7 +7,7 @@ from app.parser.normalizer import Normalizer
 from app.generator.scanner import VariableScanner
 from app.generator.csv_exporter import CSVExporter
 from app.generator.sii_exporter import SIIExporter
-from app.generator.scenario_builder import ScenarioBuilder
+from app.generator.builder import ScenarioBuilder
 from app.generator.param_loader import ParamLoader
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
