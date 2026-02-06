@@ -9,6 +9,8 @@ from app.generator.csv_exporter import CSVExporter
 from app.generator.sii_exporter import SIIExporter
 from app.generator.builder import ScenarioBuilder
 from app.generator.param_loader import ParamLoader
+# 1. IMPORTAR DEFINICIONES GLOBALES
+from app.generator.global_definitions import GLOBAL_DEFINITIONS 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 GRAMMAR_PATH = os.path.join(BASE_DIR, 'app', 'parser', 'grammar.lark')
@@ -57,10 +59,7 @@ if __name__ == "__main__":
         clean_normas = normalizer.clean_section(input_data["normas"], "Normas")
 
         # --- GESTIÓN DE REPORTES DE CALIDAD ---
-        # 1. Archivo JSON para el Frontend (Máquina)
         path_json_report = guardar_json("reporte_calidad.json", normalizer.report)
-        
-        # 2. Archivo TXT para el Usuario (Humano)
         path_txt_report = os.path.join(OUTPUT_DIR, "advertencias_sintaxis.txt")
         critical_count = 0
         with open(path_txt_report, 'w', encoding='utf-8') as f:
@@ -68,7 +67,6 @@ if __name__ == "__main__":
                 f.write("="*80 + "\n")
                 f.write("⚠️  REPORTE DE INCIDENCIAS EN EL DOCUMENTO ORIGINAL\n")
                 f.write("="*80 + "\n\n")
-                
                 for item in normalizer.report:
                     prefix = "[INFO]"
                     if item['nivel'] == 'CRITICAL': 
@@ -76,22 +74,17 @@ if __name__ == "__main__":
                         critical_count += 1
                     elif item['nivel'] == 'WARNING':
                         prefix = "[⚠️ ADVERTENCIA]"
-                    
                     f.write(f"{prefix} {item['contexto']}\n")
                     f.write(f"    {item['mensaje']}\n")
                     f.write("-" * 40 + "\n")
             else:
                 f.write("✅ Documento procesado sin incidencias.")
         
-        # Feedback en consola
         if critical_count > 0:
             print(f"\n❌ SE DETECTARON {critical_count} ERRORES GRAVES DE SINTAXIS.")
-            print("   El sistema ha aplicado correcciones automáticas, pero")
-            print("   es OBLIGATORIO revisar 'advertencias_sintaxis.txt'.\n")
         elif normalizer.report:
             print(f"\n⚠️  Se detectaron {len(normalizer.report)} advertencias menores.\n")
-        # --------------------------------------
-
+        
         # ENSAMBLAJE DEL TEXTO MAESTRO
         texto_maestro = ""
         if clean_cond: texto_maestro += f"Condición de Entrada: {clean_cond}\n\n"
@@ -103,7 +96,6 @@ if __name__ == "__main__":
         
         if clean_normas: texto_maestro += clean_normas + "\n"
 
-        # Debug
         with open(os.path.join(OUTPUT_DIR, "debug_assembler.txt"), 'w', encoding='utf-8') as f:
             f.write(texto_maestro)
 
@@ -114,13 +106,41 @@ if __name__ == "__main__":
         transformer = ObservacionTransformer()
         datos_arbol = transformer.transform(arbol_bruto)
 
+        # 2. PROCESAR MACROS GLOBALES (NUEVO)
+        print("🌍 Procesando Definiciones Globales...")
+        parsed_macros = {}
+        # Usamos el mismo parser para entender las fórmulas globales
+        # Para parsear una fórmula aislada, podemos envolverla en una estructura ficticia
+        # O simplemente usar el parser y extraer la lógica.
+        
+        for name, formula in GLOBAL_DEFINITIONS.items():
+            try:
+                # Truco: Creamos una instrucción ficticia "MACRO = FORMULA" para que el parser la acepte
+                # Y usamos el clean_section para asegurar consistencia (quitar espacios raros, etc)
+                clean_formula = normalizer.clean_section(f"{name} = {formula}", context_name=f"Macro {name}")
+                # El clean_section puede devolver saltos de línea, tomamos lo que sirva
+                clean_formula = clean_formula.strip()
+                
+                # Parseamos como si fuera una variable
+                macro_tree = parser.parse(f"Variables:\n{clean_formula}")
+                macro_data = transformer.transform(macro_tree)
+                
+                # El transformer devuelve una lista de instrucciones en la sección 'variables'
+                # macro_data = {'variables': [{'target': 'BGLO', 'logic': {...}}], ...}
+                if "variables" in macro_data and macro_data["variables"]:
+                    logic_node = macro_data["variables"][0]["logic"]
+                    parsed_macros[name] = logic_node
+            except Exception as e:
+                print(f"⚠️  Error procesando macro {name}: {e}")
+
         # GENERACIÓN
         scanner = VariableScanner()
         scanner.scan(datos_arbol)
         reporte_vars = scanner.get_report()
 
         print("🧠 Generando Escenarios...")
-        builder = ScenarioBuilder(datos_arbol, parameters=parametros_dict)
+        # 3. PASAMOS LAS MACROS AL BUILDER
+        builder = ScenarioBuilder(datos_arbol, parameters=parametros_dict, macros=parsed_macros)
         escenarios = builder.build_suite()
 
         headers = reporte_vars["Vectores_Requeridos"] + reporte_vars["Codigos_Requeridos"]

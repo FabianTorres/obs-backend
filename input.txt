@@ -1,22 +1,28 @@
 <<<VARIABLES_PRE>>>
 
 <<<CONDICION_ENTRADA>>>
-C2006 > 0 
- 
-.y.(Vx010599 = 111 .o. 112 .o. 113 .o. 114 .o. 115 .o. 116.)
- 
-.y. Vx010042=1 
+
+(C1105> 0 
+.y. C608 + C610 + C136 > 0 ) 
+.y.  
+((Vx010599=111.o. Vx010599=115) y Vx010042≠1). 
 
 <<<VARIABLES_POST>>>
-épsilon = (C1309 + C1310 + C1542 + C1552) 
+Alfa= Vx013682+ Vx013710 
+ 
+Beta= Vx013738 
+ 
+Gamma= Vx014086 
+
+EPSILON =1; [REX_2]+ Vx010156= 0 .y. Vx010053>0 
+0; si no.
+
+Mi= 1; Si POS { Vx014684 + Vx010145 + Vx010059 -Vx010146 - 
+Vx010358 - Vx010088 + Vx011930 -Vx011931 + Vx012832- 
+Vx012833+ Vx012946+ Vx012947+ Vx012948+ Vx012949+ 
+Vx012836- Vx012837+ Vx013663+ Vx013664+ Vx013665+ 
+Vx013666+ Vx013719+ Vx013720+ Vx013721+ Vx013722} >P18 
+       0; sino  
 
 <<<NORMAS>>>
-Norma de Observación: 
- 
-C2006 > Max (Vx014737; épsilon) + P31  
- 
-DIF= Pos (C2006 - Max (Vx014737; épsilon)) 
- 
-DISC=DIF 
- 
-RETE= DISC
+

@@ -4,8 +4,8 @@ from app.generator.sii_functions import (
 )
 
 class MathEngine:
-    def __init__(self):
-        pass
+    def __init__(self, macros={}):
+        self.macros = macros # <--- GUARDAMOS LAS MACROS AQUÍ
 
     def evaluate(self, logic_tree, context_inputs):
         result = self._evaluate_recursive(logic_tree, context_inputs)
@@ -26,6 +26,13 @@ class MathEngine:
         # 2. Variable / Input (Strings crudos son Nombres de Variables)
         if isinstance(logic_tree, str):
             name = logic_tree.strip()
+            
+            # --- NUEVO: SOPORTE PARA MACROS ---
+            # Si el nombre es una macro (ej: "BGLO"), evaluamos su árbol lógico interno
+            if name in self.macros:
+                return self.evaluate(self.macros[name], context_inputs)
+            # ----------------------------------
+
             if name.lower() in ["no", "sino"]: return 0 
             # OJO: Si la variable vale "K" (resultado de M11), lo retornamos tal cual
             val = context_inputs.get(name, 0)
@@ -38,33 +45,33 @@ class MathEngine:
             if "type" in logic_tree and logic_tree["type"] == "string":
                 return logic_tree["value"]
                 
-                # Unificar lógica de extracción según el tipo de condicional del Transformer
-                cond = None
-                val_true = None
-                val_false = None
+            # Unificar lógica de extracción según el tipo de condicional del Transformer
+            t = logic_tree.get("type", "") # Usamos get para seguridad
+            cond = None
+            val_true = None
+            val_false = None
 
-                # Tipo estándar (ternary_prefix, comma, brace, semi)
-                if t == "conditional":
-                    cond = logic_tree["cond"]
-                    val_true = logic_tree["true"]
-                    val_false = logic_tree["false"]
-                
-                # Tipos explícitos (ternary_explicit, piecewise)
-                elif t.startswith("conditional_"):
-                    # Asumimos estructura simple: Si Cond1 -> Val1, Sino -> Val2
-                    # (Si hay piecewise anidado, evaluamos solo el primer nivel por ahora)
-                    cond = logic_tree.get("cond_1")
-                    val_true = logic_tree.get("val_1")
-                    val_false = logic_tree.get("val_2")
+            # Tipo estándar (ternary_prefix, comma, brace, semi)
+            if t == "conditional":
+                cond = logic_tree["cond"]
+                val_true = logic_tree["true"]
+                val_false = logic_tree["false"]
+            
+            # Tipos explícitos (ternary_explicit, piecewise)
+            elif t.startswith("conditional_"):
+                # Asumimos estructura simple: Si Cond1 -> Val1, Sino -> Val2
+                # (Si hay piecewise anidado, evaluamos solo el primer nivel por ahora)
+                cond = logic_tree.get("cond_1")
+                val_true = logic_tree.get("val_1")
+                val_false = logic_tree.get("val_2")
 
-                # Evaluación
-                if cond:
-                    cond_result = self._evaluate_condition(cond, context_inputs)
-                    if cond_result:
-                        return self._evaluate_recursive(val_true, context_inputs)
-                    else:
-                        return self._evaluate_recursive(val_false, context_inputs)
-                return 0
+            # Evaluación Condicional
+            if cond:
+                cond_result = self._evaluate_condition(cond, context_inputs)
+                if cond_result:
+                    return self._evaluate_recursive(val_true, context_inputs)
+                else:
+                    return self._evaluate_recursive(val_false, context_inputs)
 
             # --- FUNCIONES ---
             if "function" in logic_tree:
@@ -83,6 +90,7 @@ class MathEngine:
                 if fname == "ABS": return SII_ABS(args[0])
                 if fname == "NEG": return SII_NEG(args[0])
                 if fname == "M11": return SII_M11(args[0])
+                if fname == "INT": return int(args[0])
                 
                 return 0
 

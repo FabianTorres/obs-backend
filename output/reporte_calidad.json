@@ -1,7 +1,7 @@
 [
   {
     "nivel": "WARNING",
-    "contexto": "Condición Entrada -> C2006 > 0 .y.(Vx010599",
+    "contexto": "Condición Entrada -> ((Vx010599",
     "mensaje": "PRECAUCIÓN LÓGICA: Se detectó mezcla de 'Y' y 'O'. Verifique paréntesis."
   }
 ]

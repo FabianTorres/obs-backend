@@ -8,59 +8,47 @@
           "op": "AND",
           "left": {
             "op": ">",
-            "left": "C2006",
+            "left": "C1105",
             "right": 0
           },
           "right": {
+            "op": ">",
+            "left": {
+              "op": "+",
+              "terms": [
+                {
+                  "op": "+",
+                  "terms": [
+                    "C608",
+                    "C610"
+                  ]
+                },
+                "C136"
+              ]
+            },
+            "right": 0
+          }
+        },
+        "right": {
+          "op": "AND",
+          "left": {
             "op": "OR",
             "left": {
-              "op": "OR",
-              "left": {
-                "op": "OR",
-                "left": {
-                  "op": "OR",
-                  "left": {
-                    "op": "OR",
-                    "left": {
-                      "op": "=",
-                      "left": "Vx010599",
-                      "right": 111
-                    },
-                    "right": {
-                      "op": "=",
-                      "left": "Vx010599",
-                      "right": 112
-                    }
-                  },
-                  "right": {
-                    "op": "=",
-                    "left": "Vx010599",
-                    "right": 113
-                  }
-                },
-                "right": {
-                  "op": "=",
-                  "left": "Vx010599",
-                  "right": 114
-                }
-              },
-              "right": {
-                "op": "=",
-                "left": "Vx010599",
-                "right": 115
-              }
+              "op": "=",
+              "left": "Vx010599",
+              "right": 111
             },
             "right": {
               "op": "=",
               "left": "Vx010599",
-              "right": 116
+              "right": 115
             }
+          },
+          "right": {
+            "op": "≠",
+            "left": "Vx010042",
+            "right": 1
           }
-        },
-        "right": {
-          "op": "=",
-          "left": "Vx010042",
-          "right": 1
         }
       }
     ]
@@ -69,75 +57,193 @@
     "section": "Variables",
     "content": [
       {
-        "target": "ÉPSILON",
+        "target": "ALFA",
         "logic": {
           "op": "+",
           "terms": [
-            {
-              "op": "+",
-              "terms": [
+            "Vx013682",
+            "Vx013710"
+          ]
+        }
+      },
+      {
+        "target": "BETA",
+        "logic": "Vx013738"
+      },
+      {
+        "target": "GAMMA",
+        "logic": "Vx014086"
+      },
+      {
+        "target": "EPSILON",
+        "logic": {
+          "type": "conditional",
+          "cond": {
+            "op": "AND",
+            "left": {
+              "op": "=",
+              "left": {
+                "op": "+",
+                "terms": [
+                  "REX_2",
+                  "Vx010156"
+                ]
+              },
+              "right": 0
+            },
+            "right": {
+              "op": ">",
+              "left": "Vx010053",
+              "right": 0
+            }
+          },
+          "true": 1,
+          "false": 0
+        }
+      },
+      {
+        "target": "MI",
+        "logic": {
+          "type": "conditional",
+          "cond": {
+            "op": ">",
+            "left": {
+              "function": "POS",
+              "args": [
                 {
                   "op": "+",
                   "terms": [
-                    "C1309",
-                    "C1310"
+                    {
+                      "op": "+",
+                      "terms": [
+                        {
+                          "op": "+",
+                          "terms": [
+                            {
+                              "op": "+",
+                              "terms": [
+                                {
+                                  "op": "+",
+                                  "terms": [
+                                    {
+                                      "op": "+",
+                                      "terms": [
+                                        {
+                                          "op": "+",
+                                          "terms": [
+                                            {
+                                              "op": "+",
+                                              "terms": [
+                                                {
+                                                  "op": "-",
+                                                  "left": {
+                                                    "op": "+",
+                                                    "terms": [
+                                                      {
+                                                        "op": "+",
+                                                        "terms": [
+                                                          {
+                                                            "op": "+",
+                                                            "terms": [
+                                                              {
+                                                                "op": "+",
+                                                                "terms": [
+                                                                  {
+                                                                    "op": "+",
+                                                                    "terms": [
+                                                                      {
+                                                                        "op": "-",
+                                                                        "left": {
+                                                                          "op": "+",
+                                                                          "terms": [
+                                                                            {
+                                                                              "op": "-",
+                                                                              "left": {
+                                                                                "op": "+",
+                                                                                "terms": [
+                                                                                  {
+                                                                                    "op": "-",
+                                                                                    "left": {
+                                                                                      "op": "-",
+                                                                                      "left": {
+                                                                                        "op": "-",
+                                                                                        "left": {
+                                                                                          "op": "+",
+                                                                                          "terms": [
+                                                                                            {
+                                                                                              "op": "+",
+                                                                                              "terms": [
+                                                                                                "Vx014684",
+                                                                                                "Vx010145"
+                                                                                              ]
+                                                                                            },
+                                                                                            "Vx010059"
+                                                                                          ]
+                                                                                        },
+                                                                                        "right": "Vx010146"
+                                                                                      },
+                                                                                      "right": "Vx010358"
+                                                                                    },
+                                                                                    "right": "Vx010088"
+                                                                                  },
+                                                                                  "Vx011930"
+                                                                                ]
+                                                                              },
+                                                                              "right": "Vx011931"
+                                                                            },
+                                                                            "Vx012832"
+                                                                          ]
+                                                                        },
+                                                                        "right": "Vx012833"
+                                                                      },
+                                                                      "Vx012946"
+                                                                    ]
+                                                                  },
+                                                                  "Vx012947"
+                                                                ]
+                                                              },
+                                                              "Vx012948"
+                                                            ]
+                                                          },
+                                                          "Vx012949"
+                                                        ]
+                                                      },
+                                                      "Vx012836"
+                                                    ]
+                                                  },
+                                                  "right": "Vx012837"
+                                                },
+                                                "Vx013663"
+                                              ]
+                                            },
+                                            "Vx013664"
+                                          ]
+                                        },
+                                        "Vx013665"
+                                      ]
+                                    },
+                                    "Vx013666"
+                                  ]
+                                },
+                                "Vx013719"
+                              ]
+                            },
+                            "Vx013720"
+                          ]
+                        },
+                        "Vx013721"
+                      ]
+                    },
+                    "Vx013722"
                   ]
-                },
-                "C1542"
+                }
               ]
             },
-            "C1552"
-          ]
+            "right": "P18"
+          },
+          "true": 1,
+          "false": 0
         }
-      }
-    ]
-  },
-  {
-    "section": "Norma_Observacion",
-    "content": [
-      {
-        "op": ">",
-        "left": "C2006",
-        "right": {
-          "op": "+",
-          "terms": [
-            {
-              "function": "MAX",
-              "args": [
-                "Vx014737",
-                "ÉPSILON"
-              ]
-            },
-            "P31"
-          ]
-        }
-      },
-      {
-        "target": "DIF",
-        "logic": {
-          "function": "POS",
-          "args": [
-            {
-              "op": "-",
-              "left": "C2006",
-              "right": {
-                "function": "MAX",
-                "args": [
-                  "Vx014737",
-                  "ÉPSILON"
-                ]
-              }
-            }
-          ]
-        }
-      },
-      {
-        "target": "DISC",
-        "logic": "DIF"
-      },
-      {
-        "target": "RETE",
-        "logic": "DISC"
       }
     ]
   }

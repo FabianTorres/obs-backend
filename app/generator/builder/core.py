@@ -5,10 +5,11 @@ from .solvers_mixin import VariableSolverMixin
 from .norms_mixin import NormGeneratorMixin
 
 class ScenarioBuilder(BuilderUtilsMixin, CombinatoricsMixin, VariableSolverMixin, NormGeneratorMixin):
-    def __init__(self, logic_tree, parameters={}):
+    def __init__(self, logic_tree, parameters={}, macros={}):
         self.logic_tree = logic_tree
         self.parameters = parameters
-        self.math_engine = MathEngine()
+        self.macros = macros
+        self.math_engine = MathEngine(macros=self.macros)
         self.scenarios = []
         self.case_id = 11467
         self.var_definitions = self._map_variable_definitions()

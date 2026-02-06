@@ -27,32 +27,62 @@ class VariableSolverMixin:
     def _solve_conditional_variable(self, var_name, logic_node, base_inputs, prefix=""):
         branches_to_test = []
         if "cond" in logic_node:
-            branches_to_test.append({"cond": logic_node["cond"], "val": logic_node["true"], "label": "Branch TRUE"})
-            branches_to_test.append({"cond": None, "val": logic_node["false"], "label": "Branch FALSE"})
+            # Rama TRUE (OK)
+            branches_to_test.append({
+                "cond": logic_node["cond"], 
+                "val": logic_node["true"], 
+                "label": "Branch TRUE",
+                "mode": "OK" # Modo Normal
+            })
+            # Rama FALSE (NK)
+            branches_to_test.append({
+                "cond": logic_node["cond"], 
+                "val": logic_node["false"], 
+                "label": "Branch FALSE",
+                "mode": "NK" # Modo Ruptura (Nuevo)
+            })
         elif "cond_1" in logic_node:
-            branches_to_test.append({"cond": logic_node["cond_1"], "val": logic_node.get("val_1"), "label": "Rama 1"})
+            branches_to_test.append({"cond": logic_node["cond_1"], "val": logic_node.get("val_1"), "label": "Rama 1", "mode": "OK"})
             if "cond_2" in logic_node and logic_node["cond_2"]:
-                branches_to_test.append({"cond": logic_node["cond_2"], "val": logic_node.get("val_2"), "label": "Rama 2"})
+                branches_to_test.append({"cond": logic_node["cond_2"], "val": logic_node.get("val_2"), "label": "Rama 2", "mode": "OK"})
             else:
-                branches_to_test.append({"cond": None, "val": logic_node.get("val_2"), "label": "Rama Defecto"})
+                # Rama defecto compleja: Debería romper cond_1 (y cond_2 si existe)
+                # Por simplicidad, la dejamos neutra, o podríamos implementar ruptura múltiple.
+                branches_to_test.append({"cond": None, "val": logic_node.get("val_2"), "label": "Rama Defecto", "mode": "DEFAULT"})
 
         for branch in branches_to_test:
             condition = branch["cond"]
             value_logic = branch["val"]
+            mode = branch.get("mode", "OK")
             label = f"{prefix}{branch['label']}"
 
             branch_inputs_list = []
+            
             if condition:
-                triggers = self._generate_ok_combinations(condition)
-                for t in triggers: branch_inputs_list.append({**base_inputs, **t})
+                if mode == "OK":
+                    triggers = self._generate_ok_combinations(condition)
+                elif mode == "NK":
+                    # AQUÍ ESTÁ LA MAGIA: Generamos inputs explícitos para romper la condición
+                    triggers = self._generate_nk_combinations(condition)
+                    
+                    # Si no pudimos generar triggers (ej: condición vacía), fallback a default
+                    if not triggers: 
+                        triggers = [{}] 
+                else:
+                    triggers = [{}]
+
+                for t in triggers: 
+                    branch_inputs_list.append({**base_inputs, **t})
             else:
                 branch_inputs_list.append(base_inputs.copy())
 
             for i, inputs_ctx in enumerate(branch_inputs_list):
                 desc_trigger = ""
+                # Generamos descripción dinámica
                 if condition:
                     actives = [f"{k}={v}" for k,v in inputs_ctx.items() if k not in base_inputs and k not in self.parameters]
                     if actives: desc_trigger = f" (Trigger: {', '.join(actives)})"
+                
                 final_label = f"{label}{desc_trigger}"
                 self._dispatch_logic_solver(var_name, value_logic, inputs_ctx, prefix=f"{final_label} -> ")
 

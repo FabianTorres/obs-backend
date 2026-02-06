@@ -40,11 +40,10 @@ class Normalizer:
         # 4. Procesar línea por línea
         normalized_lines = []
         for line in consolidated_lines:
-            # CORRECCIÓN DE PUNTOS:
-            # 1. "116." al final -> "116"
-            line = line.rstrip('.')
-            # 2. "116.)" -> "116)"
+            # --- PRE-CLEAN: CORRECCIÓN DE PUNTOS SEGURA ---
+            line = re.sub(r'(\d+)\.\s*$', r'\1', line)
             line = re.sub(r'(\d+)\.\s*\)', r'\1)', line)
+            line = re.sub(r'\)\.\s*$', ')', line)
             
             # A. Auditoría Preventiva
             self._audit_line(line, context_name)
@@ -52,6 +51,10 @@ class Normalizer:
             # B. Normalización y Corrección
             norm = self._normalize_formula(line, context_name)
             norm = self._balance_parentheses(norm, context_name)
+            
+            # --- POST-CLEAN: LIMPIEZA FINAL ---
+            norm = re.sub(r'\)\.\s*$', ')', norm)
+            
             normalized_lines.append(norm)
             
         return "\n".join(normalized_lines)
@@ -124,32 +127,20 @@ class Normalizer:
 
     def _normalize_formula(self, text, context):
         # --- FASE 0: ESTANDARIZACIÓN DE ENTIDADES ---
+        text = text.replace("[", "").replace("]", "")
         text = re.sub(r'\b[vV][xX]\.?\s*(\d+)', r'Vx\1', text)
         text = re.sub(r'\b[cC]\s*(\d+)', r'C\1', text)
         text = re.sub(r'\b[pP]\s*(\d+)', r'P\1', text)
 
-        # FASE 0.5: Expansión de "Shorthand OR" (VERSIÓN FINAL ROBUSTA)
-        # Vx=1 .o. 2 -> Vx=1 .o. Vx=2
-        
-        for _ in range(10): # Límite de seguridad
+        # FASE 0.5: Expansión de "Shorthand OR"
+        for _ in range(10): 
             def expand_or(match):
                 full_assign = match.group(1)   
                 var_name = full_assign.split('=')[0].strip()
                 next_val = match.group(2)      
-                
-                # Doble check de seguridad
                 if '=' in next_val: return match.group(0)
-                
                 return f"{full_assign} .o. {var_name}={next_val}"
 
-            # REGEX BLINDADA:
-            # 1. (\b[a-zA-Z_]\w*\s*=\s*[\w\.]+) -> Captura Vx=111
-            # 2. \s*\.[oO]\.\s* -> Captura .o.
-            # 3. ([\w\.]+)                      -> Captura 112
-            # 4. (?=\s*(?:\.[oO]\.|\.[yY]\.|\)|$)) -> LOOKAHEAD POSITIVO
-            #    Asegura que lo que sigue es OBLIGATORIAMENTE un separador (.o., .y., ) o Fin).
-            #    Si sigue un "=", fallará y no hará match.
-            
             pattern = r'(\b[a-zA-Z_]\w*\s*=\s*[\w\.]+)\s*\.[oO]\.\s*([\w\.]+)(?=\s*(?:\.[oO]\.|\.[yY]\.|\)|$))'
             
             new_text = re.sub(pattern, expand_or, text, flags=re.IGNORECASE)
@@ -157,17 +148,29 @@ class Normalizer:
             text = new_text
 
         # FASE 1: Operadores
-        text = re.sub(r'\s*\.[yY]\.\s*', ' Y ', text)
-        text = re.sub(r'\s*\.[oO]\.\s*', ' O ', text)
+        text = re.sub(r'\s*\.\s*[yY]\s*\.\s*', ' Y ', text)
+        text = re.sub(r'\s*\.\s*[oO]\s*\.\s*', ' O ', text)
+        text = re.sub(r'\s+\b[yY]\b\s+', ' Y ', text)
+        text = re.sub(r'\s+\b[oO]\b\s+', ' O ', text)
+        
         text = re.sub(r'\bMin\b', 'MIN', text, flags=re.IGNORECASE)
         text = re.sub(r'\bMax\b', 'MAX', text, flags=re.IGNORECASE)
         text = re.sub(r'\bPos\b', 'POS', text, flags=re.IGNORECASE)
         text = text.replace("{", "(").replace("}", ")")
 
-        # FASE 2: Patrones Condicionales
+        # FASE 2: Patrones Condicionales (REGEX CORREGIDAS)
+        # Añadido \s*(?:si\s+)? dentro del grupo de captura para consumir el "Si" redundante si existe.
+        
+        # Patrón 1: = Si(...) = A B, Sino
         text = re.sub(r'=\s*Si\s*\((.*?)\)\s*=\s*(\d+)\s+(\d+)\s*,\s*Sino', r'= SI(\1; \2; \3)', text, flags=re.IGNORECASE)
-        text = re.sub(r'=\s*(\d+)\s*,\s*si\s*(.*?)\s*,\s*(\d+)\s*,\s*sino', r'= SI(\2; \1; \3)', text, flags=re.IGNORECASE)
-        text = re.sub(r'=\s*(\d+)\s*;\s*(.+?)\s+(\d+)\s*;\s*si\s*no', r'= SI(\2; \1; \3)', text, flags=re.IGNORECASE)
+        
+        # Patrón 2: = A, si Cond, B, sino (El problemático)
+        # Antes: (.*?)
+        # Ahora: (?:si\s+)?(.*?) -> Consume opcionalmente "si " al inicio de la condición.
+        text = re.sub(r'=\s*(\d+)\s*;\s*(?:si\s+)?(.*?)\s+(?:(\d+)\s*;\s*)?si\s*no\.?', r'= SI(\2; \1; \3)', text, flags=re.IGNORECASE)
+        
+        # Patrón 3: = A; Cond B; sino (Variante)
+        text = re.sub(r'=\s*(\d+)\s*;\s*(?:si\s+)?(.+?)\s+(\d+)\s*;\s*si\s*no\.?', r'= SI(\2; \1; \3)', text, flags=re.IGNORECASE)
 
         if ",si" in text.lower():
             def replace_piecewise(match):
@@ -183,5 +186,8 @@ class Normalizer:
             text = re.sub(pattern, replace_piecewise, text, flags=re.IGNORECASE)
 
         text = re.sub(r'\(\s*(.*?)\s*;\s*(.*?)\s*[;]\s*(.*?)\s*;\s*sino\s*\)', r'SI(\2; \1; \3)', text, flags=re.IGNORECASE)
+
+        # FIX FINAL: Si quedó algún "SI(Si ..." suelto, lo corregimos a la fuerza.
+        text = re.sub(r'SI\(\s*Si\s+', 'SI(', text, flags=re.IGNORECASE)
 
         return text

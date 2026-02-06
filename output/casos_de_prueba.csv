@@ -1,17 +1,42 @@
-﻿ID_Caso,Tipo,Descripcion,Resultado_Esperado,Vx42,Vx599,Vx4737,[1309],[1310],[1542],[1552],[2006]
-11467,Cond. OK,"Camino válido #1: Activando C2006, Vx010599, Vx010042...",Cumple Condición,1,111,,,,,,1
-11468,Cond. OK,"Camino válido #2: Activando C2006, Vx010599, Vx010042...",Cumple Condición,1,112,,,,,,1
-11469,Cond. OK,"Camino válido #3: Activando C2006, Vx010599, Vx010042...",Cumple Condición,1,113,,,,,,1
-11470,Cond. OK,"Camino válido #4: Activando C2006, Vx010599, Vx010042...",Cumple Condición,1,114,,,,,,1
-11471,Cond. OK,"Camino válido #5: Activando C2006, Vx010599, Vx010042...",Cumple Condición,1,115,,,,,,1
-11472,Cond. OK,"Camino válido #6: Activando C2006, Vx010599, Vx010042...",Cumple Condición,1,116,,,,,,1
-11473,Cond. NK,Fallo forzado en C2006 (Bloque #1),No cumple Condición,1,111,,,,,,0
-11474,Cond. NK,"Fallo total del Grupo OR (Vx010599, Vx010599, Vx010599, Vx010599, Vx010599, Vx010599)",No cumple Condición,1,117,,,,,,1
-11475,Cond. NK,Fallo forzado en Vx010042 (Bloque #3),No cumple Condición,2,111,,,,,,1
-11476,ÉPSILON,Calc,400,1,111,,100,100,100,100,1
-11477,Norma OK,Borde Cumple (Gana Vx014737) (C2006=2501.0 vs 2500),DIF=1501 DISC=0 RETE=0,1,111,1000,10,10,10,10,2501.0
-11478,Norma NK,Borde No Cumple (Gana Vx014737) (C2006=2500.0 vs 2500),No cumple Norma,1,111,1000,10,10,10,10,2500.0
-11479,Valida POS=0,Prueba Interna (Gana Vx014737) (Forzando C2006=1),No cumple Norma,1,111,1000,10,10,10,10,1
-11480,Norma OK,Borde Cumple (Gana ÉPSILON) (C2006=5501.0 vs 5500),DIF=1501 DISC=0 RETE=0,1,111,10,1000,1000,1000,1000,5501.0
-11481,Norma NK,Borde No Cumple (Gana ÉPSILON) (C2006=5500.0 vs 5500),No cumple Norma,1,111,10,1000,1000,1000,1000,5500.0
-11482,Valida POS=0,Prueba Interna (Gana ÉPSILON) (Forzando C2006=1),No cumple Norma,1,111,10,1000,1000,1000,1000,1
+﻿ID_Caso,Tipo,Descripcion,Resultado_Esperado,Vx42,Vx53,Vx59,Vx88,Vx145,Vx146,Vx156,Vx358,Vx599,Vx1930,Vx1931,Vx2832,Vx2833,Vx2836,Vx2837,Vx2946,Vx2947,Vx2948,Vx2949,Vx3663,Vx3664,Vx3665,Vx3666,Vx3682,Vx3710,Vx3719,Vx3720,Vx3721,Vx3722,Vx3738,Vx4086,Vx4684,[1105],[136],[608],[610]
+11468,Cond. OK,"Camino válido #1: Activando C1105=1000, C608=1000, Vx010599=111, Vx010042=2...",Cumple Condición,2,,,,,,,,111,,,,,,,,,,,,,,,,,,,,,,,,1000,,1000,
+11469,Cond. OK,"Camino válido #2: Activando C1105=1000, C608=1000, Vx010599=115, Vx010042=2...",Cumple Condición,2,,,,,,,,115,,,,,,,,,,,,,,,,,,,,,,,,1000,,1000,
+11470,Cond. OK,"Camino válido #3: Activando C1105=1000, C610=1000, Vx010599=111, Vx010042=2...",Cumple Condición,2,,,,,,,,111,,,,,,,,,,,,,,,,,,,,,,,,1000,,,1000
+11471,Cond. OK,"Camino válido #4: Activando C1105=1000, C610=1000, Vx010599=115, Vx010042=2...",Cumple Condición,2,,,,,,,,115,,,,,,,,,,,,,,,,,,,,,,,,1000,,,1000
+11472,Cond. OK,"Camino válido #5: Activando C1105=1000, C136=1000, Vx010599=111, Vx010042=2...",Cumple Condición,2,,,,,,,,111,,,,,,,,,,,,,,,,,,,,,,,,1000,1000,,
+11473,Cond. OK,"Camino válido #6: Activando C1105=1000, C136=1000, Vx010599=115, Vx010042=2...",Cumple Condición,2,,,,,,,,115,,,,,,,,,,,,,,,,,,,,,,,,1000,1000,,
+11474,Cond. NK,Fallo forzado en C1105 (Bloque #1),No cumple Condición,2,,,,,,,,111,,,,,,,,,,,,,,,,,,,,,,,,,,1000,
+11475,Cond. NK,Fallo forzado en C608 (Bloque #2),No cumple Condición,2,,,,,,,,111,,,,,,,,,,,,,,,,,,,,,,,,1000,,,
+11476,Cond. NK,"Fallo forzado en Vx010599, Vx010599 (Bloque #3)",No cumple Condición,2,,,,,,,,116,,,,,,,,,,,,,,,,,,,,,,,,1000,,1000,
+11477,Cond. NK,Fallo forzado en Vx010042 (Bloque #4),No cumple Condición,1,,,,,,,,111,,,,,,,,,,,,,,,,,,,,,,,,1000,,1000,
+11478,ALFA,Calc,200,2,,,,,,,,111,,,,,,,,,,,,,,,100,100,,,,,,,,1000,,1000,
+11479,BETA,Calc,100,2,,,,,,,,111,,,,,,,,,,,,,,,,,,,,,100,,,1000,,1000,
+11480,GAMMA,Calc,100,2,,,,,,,,111,,,,,,,,,,,,,,,,,,,,,,100,,1000,,1000,
+11481,EPSILON,"Branch TRUE (Trigger: REX_2=0, Vx010053=1000) -> Calc",1,2,1000,,,,,,,111,,,,,,,,,,,,,,,,,,,,,,,,1000,,1000,
+11482,EPSILON,Branch FALSE (Trigger: REX_2=1) -> Calc,0,2,,,,,,,,111,,,,,,,,,,,,,,,,,,,,,,,,1000,,1000,
+11483,EPSILON,Branch FALSE (Trigger: Vx010053=0) -> Calc,0,2,,,,,,,,111,,,,,,,,,,,,,,,,,,,,,,,,1000,,1000,
+11484,MI,Branch TRUE (Trigger: Vx014684=10001) -> Calc,1,2,,,,,,,,111,,,,,,,,,,,,,,,,,,,,,,,10001,1000,,1000,
+11485,MI,Branch TRUE (Trigger: Vx010145=10001) -> Calc,1,2,,,,10001,,,,111,,,,,,,,,,,,,,,,,,,,,,,,1000,,1000,
+11486,MI,Branch TRUE (Trigger: Vx010059=10001) -> Calc,1,2,,10001,,,,,,111,,,,,,,,,,,,,,,,,,,,,,,,1000,,1000,
+11487,MI,Branch TRUE (Trigger: Vx010146=10001) -> Calc,1,2,,,,,10001,,,111,,,,,,,,,,,,,,,,,,,,,,,,1000,,1000,
+11488,MI,Branch TRUE (Trigger: Vx010358=10001) -> Calc,1,2,,,,,,,10001,111,,,,,,,,,,,,,,,,,,,,,,,,1000,,1000,
+11489,MI,Branch TRUE (Trigger: Vx010088=10001) -> Calc,1,2,,,10001,,,,,111,,,,,,,,,,,,,,,,,,,,,,,,1000,,1000,
+11490,MI,Branch TRUE (Trigger: Vx011930=10001) -> Calc,1,2,,,,,,,,111,10001,,,,,,,,,,,,,,,,,,,,,,,1000,,1000,
+11491,MI,Branch TRUE (Trigger: Vx011931=10001) -> Calc,1,2,,,,,,,,111,,10001,,,,,,,,,,,,,,,,,,,,,,1000,,1000,
+11492,MI,Branch TRUE (Trigger: Vx012832=10001) -> Calc,1,2,,,,,,,,111,,,10001,,,,,,,,,,,,,,,,,,,,,1000,,1000,
+11493,MI,Branch TRUE (Trigger: Vx012833=10001) -> Calc,1,2,,,,,,,,111,,,,10001,,,,,,,,,,,,,,,,,,,,1000,,1000,
+11494,MI,Branch TRUE (Trigger: Vx012946=10001) -> Calc,1,2,,,,,,,,111,,,,,,,10001,,,,,,,,,,,,,,,,,1000,,1000,
+11495,MI,Branch TRUE (Trigger: Vx012947=10001) -> Calc,1,2,,,,,,,,111,,,,,,,,10001,,,,,,,,,,,,,,,,1000,,1000,
+11496,MI,Branch TRUE (Trigger: Vx012948=10001) -> Calc,1,2,,,,,,,,111,,,,,,,,,10001,,,,,,,,,,,,,,,1000,,1000,
+11497,MI,Branch TRUE (Trigger: Vx012949=10001) -> Calc,1,2,,,,,,,,111,,,,,,,,,,10001,,,,,,,,,,,,,,1000,,1000,
+11498,MI,Branch TRUE (Trigger: Vx012836=10001) -> Calc,1,2,,,,,,,,111,,,,,10001,,,,,,,,,,,,,,,,,,,1000,,1000,
+11499,MI,Branch TRUE (Trigger: Vx012837=10001) -> Calc,1,2,,,,,,,,111,,,,,,10001,,,,,,,,,,,,,,,,,,1000,,1000,
+11500,MI,Branch TRUE (Trigger: Vx013663=10001) -> Calc,1,2,,,,,,,,111,,,,,,,,,,,10001,,,,,,,,,,,,,1000,,1000,
+11501,MI,Branch TRUE (Trigger: Vx013664=10001) -> Calc,1,2,,,,,,,,111,,,,,,,,,,,,10001,,,,,,,,,,,,1000,,1000,
+11502,MI,Branch TRUE (Trigger: Vx013665=10001) -> Calc,1,2,,,,,,,,111,,,,,,,,,,,,,10001,,,,,,,,,,,1000,,1000,
+11503,MI,Branch TRUE (Trigger: Vx013666=10001) -> Calc,1,2,,,,,,,,111,,,,,,,,,,,,,,10001,,,,,,,,,,1000,,1000,
+11504,MI,Branch TRUE (Trigger: Vx013719=10001) -> Calc,1,2,,,,,,,,111,,,,,,,,,,,,,,,,,10001,,,,,,,1000,,1000,
+11505,MI,Branch TRUE (Trigger: Vx013720=10001) -> Calc,1,2,,,,,,,,111,,,,,,,,,,,,,,,,,,10001,,,,,,1000,,1000,
+11506,MI,Branch TRUE (Trigger: Vx013721=10001) -> Calc,1,2,,,,,,,,111,,,,,,,,,,,,,,,,,,,10001,,,,,1000,,1000,
+11507,MI,Branch TRUE (Trigger: Vx013722=10001) -> Calc,1,2,,,,,,,,111,,,,,,,,,,,,,,,,,,,,10001,,,,1000,,1000,
+11508,MI,Branch FALSE (Trigger: Vx014684=0) -> Calc,0,2,,,,,,,,111,,,,,,,,,,,,,,,,,,,,,,,,1000,,1000,
