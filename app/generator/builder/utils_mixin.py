@@ -103,19 +103,14 @@ class BuilderUtilsMixin:
     def _smart_set_input(self, inputs_dict, target, value):
         # 1. Si es una MACRO (ej: BGLO o REX_2), gestionamos la delegación
         if hasattr(self, 'macros') and target in self.macros:
-            # Seteamos la MACRO en el diccionario para que los Triggers (logica) la vean
-            inputs_dict[target] = value
+            # SIEMPRE guardamos la macro en el dict (para triggers y lógica)
+            inputs_dict[target] = value # <--- ASEGURAR ESTO
             
-            # Ahora buscamos a quién delegar el valor "físico" para el CSV
             leaves = self._extract_leaf_vars(self.macros[target])
             delegates = [v for v in leaves if v.startswith("C") or v.startswith("Vx")]
             
             if delegates:
                 primary_delegate = delegates[0]
-                
-                # Determinamos qué valor dar al delegado
-                # Si activamos REX_2 (value=1), queremos que C104 valga 1000 (valor robusto)
-                # Si desactivamos (value=0), C104 debe ser 0.
                 if isinstance(value, (int, float)) and value > 0:
                     val_to_set = 1000 
                 else:
@@ -123,6 +118,7 @@ class BuilderUtilsMixin:
                 
                 # Recursión: Seteamos el delegado
                 self._smart_set_input(inputs_dict, primary_delegate, val_to_set)
+                
                 return
 
         # 2. Comportamiento Normal

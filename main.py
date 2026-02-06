@@ -136,6 +136,20 @@ if __name__ == "__main__":
         # GENERACIÓN
         scanner = VariableScanner()
         scanner.scan(datos_arbol)
+
+        # --- NUEVO: ESCANEAR TAMBIÉN LAS MACROS ---
+        print("🔍 Escaneando variables en macros globales...")
+        for macro_name, macro_logic in parsed_macros.items():
+            # Creamos una estructura ficticia para que el scanner la entienda
+            # Simulamos que es una regla: "MACRO = LOGICA"
+            dummy_structure = {
+                "variables": [
+                    {"target": macro_name, "logic": macro_logic}
+                ]
+            }
+            scanner.scan(dummy_structure)
+        # ------------------------------------------
+        
         reporte_vars = scanner.get_report()
 
         print("🧠 Generando Escenarios...")

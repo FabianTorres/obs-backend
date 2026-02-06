@@ -159,18 +159,18 @@ class Normalizer:
         text = text.replace("{", "(").replace("}", ")")
 
         # FASE 2: Patrones Condicionales (REGEX CORREGIDAS)
-        # Añadido \s*(?:si\s+)? dentro del grupo de captura para consumir el "Si" redundante si existe.
         
-        # Patrón 1: = Si(...) = A B, Sino
+        # Patrón 1: = Si(...) = A B, Sino (Estándar)
         text = re.sub(r'=\s*Si\s*\((.*?)\)\s*=\s*(\d+)\s+(\d+)\s*,\s*Sino', r'= SI(\1; \2; \3)', text, flags=re.IGNORECASE)
         
-        # Patrón 2: = A, si Cond, B, sino (El problemático)
-        # Antes: (.*?)
-        # Ahora: (?:si\s+)?(.*?) -> Consume opcionalmente "si " al inicio de la condición.
-        text = re.sub(r'=\s*(\d+)\s*;\s*(?:si\s+)?(.*?)\s+(?:(\d+)\s*;\s*)?si\s*no\.?', r'= SI(\2; \1; \3)', text, flags=re.IGNORECASE)
+        # Patrón 2: = A; Cond; B; Sino (Estilo Macros Crudas)
+        # Importante: Excluye el ";" de la condición
+        text = re.sub(r'=\s*(\d+)\s*;\s*(?:si\s+)?(.+?)\s*;\s*(\d+)\s*;\s*si\s*no\.?', r'= SI(\2; \1; \3)', text, flags=re.IGNORECASE)
         
-        # Patrón 3: = A; Cond B; sino (Variante)
-        text = re.sub(r'=\s*(\d+)\s*;\s*(?:si\s+)?(.+?)\s+(\d+)\s*;\s*si\s*no\.?', r'= SI(\2; \1; \3)', text, flags=re.IGNORECASE)
+        # Patrón 3: Variación más laxa (para casos como Mi=1; Cond... 0; sino)
+        # ELIMINAMOS EL IF RESTRICTIVO para que esto aplique siempre
+        if "si(" not in text.lower():
+             text = re.sub(r'=\s*(\d+)\s*;\s*(?:si\s+)?(.*?)\s+(?:(\d+)\s*;\s*)?si\s*no\.?', r'= SI(\2; \1; \3)', text, flags=re.IGNORECASE)
 
         if ",si" in text.lower():
             def replace_piecewise(match):
@@ -187,7 +187,7 @@ class Normalizer:
 
         text = re.sub(r'\(\s*(.*?)\s*;\s*(.*?)\s*[;]\s*(.*?)\s*;\s*sino\s*\)', r'SI(\2; \1; \3)', text, flags=re.IGNORECASE)
 
-        # FIX FINAL: Si quedó algún "SI(Si ..." suelto, lo corregimos a la fuerza.
+        # Limpieza final de residuos "Si"
         text = re.sub(r'SI\(\s*Si\s+', 'SI(', text, flags=re.IGNORECASE)
 
         return text

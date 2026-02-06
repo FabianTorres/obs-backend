@@ -27,38 +27,28 @@ GLOBAL_DEFINITIONS = {
 
 GLOBAL_DEFINITIONS.update({
     "REX": """
-    SI(
+        1; Si 
         C104 + Vx013691 + Vx013692 + Vx013693 + Vx013694 + Vx014051 + Vx014052 + Vx014053 + 
         Vx014054 + C106 + Vx011576 + Vx011577 + Vx011578 + Vx011579 + Vx011580 + Vx011804 + 
         C108 + Vx012420 + C955 + Vx012424 + 
         C1632 + Vx013600 + C110 + Vx010381 + Vx010011 + Vx010148 + Vx010128 + 
         POS(Vx010201 - Vx010136) + Vx010382 + Vx011321 + Vx011322 + 
         C1032 + Vx013196 + Vx013197 + C1891 + C1104 > 0; 
-        1; 
-        0
-    )
+        0; Sino
     """,
 
     "REX_2": """
-    SI(
+        1; Si
         C104 + Vx013691 + Vx013692 + Vx013693 + Vx013694 + Vx014051 + Vx014052 + Vx014053 + 
         Vx014054 + C106 + Vx011576 + Vx011577 + Vx011578 + Vx011579 + Vx011580 + Vx011804 + 
         C108 + Vx012420 + C955 + Vx012424 + C1632 + Vx013600 + C110 + Vx010381 + Vx010011 + 
         Vx010148 + Vx010128 + POS(Vx010201 - Vx010136) + Vx010382 + Vx011321 + Vx011322 + 
         C1032 + Vx013196 + Vx013197 + C1891 + C1104 > 0; 
-        1; 
-        0
-    )
-    """
-})
-
-# NUEVAS DEFINICIONES COMPLEJAS (RKM y RCAV)
-# Nota: Se han convertido llaves {} a () y la estructura a SI(...)
-
-GLOBAL_DEFINITIONS.update({
+        0; Sino
+    """,
+    
     "RKM": """
-    SI(
-        POS(
+        1; Si POS(
             Vx010357 + Vx010145 + Vx010059 - Vx010146 - Vx010358 - Vx010088 + 
             Vx011930 - Vx011931 + Vx012832 - Vx012833 + Vx012836 - Vx012837 + 
             Vx013663 + Vx013664 + Vx013665 + Vx013666 + Vx013675 + Vx013676 + 
@@ -70,16 +60,10 @@ GLOBAL_DEFINITIONS.update({
             Vx014083 + Vx014084 + Vx014087 + Vx014088 + Vx014089 + Vx014092 + 
             Vx010653 + Vx014447
         ) > P18;
-        1;
-        0
-    )
+        0; Sino
     """,
 
     "RCAV": """
-    SI(
-        POS(Vx010055 - Vx010087) > P36;
-        1;
-        0
-    )
+        1; Si POS(Vx010055 - Vx010087) > P36; 0; Sino
     """
 })
