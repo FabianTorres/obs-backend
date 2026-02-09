@@ -1,3 +1,5 @@
+import unicodedata
+
 class BuilderUtilsMixin:
     def _map_variable_definitions(self):
         definitions = {}
@@ -6,7 +8,19 @@ class BuilderUtilsMixin:
             for item in vars_block:
                 if "target" in item:
                     definitions[item["target"]] = item.get("logic")
+
+                    norm_key = self._normalize_key(item["target"])
+                    if norm_key != item["target"]:
+                        definitions[norm_key] = item.get("logic")
         return definitions
+
+    def _normalize_key(self, text):
+        """Normaliza texto: Mayúsculas y sin acentos (é -> E)"""
+        if not isinstance(text, str): return str(text)
+        # Eliminar acentos
+        nfkd_form = unicodedata.normalize('NFKD', text)
+        no_accents = "".join([c for c in nfkd_form if not unicodedata.combining(c)])
+        return no_accents.upper()
 
     def _find_section(self, name):
         if hasattr(self, 'logic_tree') and isinstance(self.logic_tree, dict):
@@ -82,10 +96,24 @@ class BuilderUtilsMixin:
         return vars_found
 
     def _smart_set_input(self, inputs_dict, target, value):
+        # Normalizamos la clave objetivo para búsqueda
+        norm_target = self._normalize_key(target)
+
         # 1. Macros / Delegación
-        if hasattr(self, 'macros') and target in self.macros:
+        # Buscamos por target exacto O normalizado
+        macro_def = None
+        if hasattr(self, 'macros'):
+            if target in self.macros: macro_def = self.macros[target]
+            elif norm_target in self.macros: macro_def = self.macros[norm_target]
+
+        if macro_def:
             inputs_dict[target] = value
-            leaves = self._extract_leaf_vars(self.macros[target])
+            # Necesitamos logic_processor para extraer leaves. Si no está, importamos localmente o usamos el del mixin
+            # Asumimos que self tiene logic_processor (inyectado por CombinatoricsMixin)
+            leaves = []
+            if hasattr(self, 'logic_processor'):
+                leaves = self.logic_processor._extract_leaf_vars(macro_def)
+            
             delegates = [v for v in leaves if v.startswith("C") or v.startswith("Vx")]
             if delegates:
                 primary_delegate = delegates[0]
@@ -96,39 +124,34 @@ class BuilderUtilsMixin:
         # 2. Guardado Normal
         inputs_dict[target] = value
         
-        # 3. Propagación Recursiva (Resolución hacia atrás)
-        if hasattr(self, 'var_definitions') and target in self.var_definitions:
-            definition = self.var_definitions[target]
-            
-            # Alias
+        # 3. Propagación Recursiva
+        definition = None
+        if hasattr(self, 'var_definitions'):
+            if target in self.var_definitions: definition = self.var_definitions[target]
+            elif norm_target in self.var_definitions: definition = self.var_definitions[norm_target]
+
+        if definition:
             if isinstance(definition, str):
                 self._smart_set_input(inputs_dict, definition, value)
 
-            # Lógica Condicional (La magia ocurre aquí)
             elif isinstance(definition, dict) and definition.get("type") == "conditional":
                 cond = definition.get("cond")
                 val_true = definition.get("true")
                 val_false = definition.get("false")
-                
                 solution = None
                 
-                # --- TRADUCCIÓN DE INTENCIONES ---
-                
-                # Intención VERDADERA: Coincidencia exacta O valor positivo alto (Heurística del Solver)
+                # Intentamos detectar intención VERDADERA
                 is_true_intent = False
                 if value == val_true: is_true_intent = True
                 elif isinstance(val_true, (int, float)) and val_true == 1 and isinstance(value, (int, float)) and value >= 1:
                     is_true_intent = True
                 
-                # Intención FALSA: Coincidencia exacta O valor cero/negativo
+                # Intentamos detectar intención FALSA
                 is_false_intent = False
                 if value == val_false: is_false_intent = True
                 elif isinstance(val_false, (int, float)) and val_false == 0 and isinstance(value, (int, float)) and value <= 0:
                     is_false_intent = True
 
-                # ----------------------------------
-
-                # Ejecutar Solver según intención
                 if is_true_intent:
                     inputs_dict[target] = val_true 
                     if hasattr(self, '_generate_ok_combinations'):
@@ -141,7 +164,6 @@ class BuilderUtilsMixin:
                         solutions = self._generate_nk_combinations(cond)
                         if solutions: solution = solutions[0]
                 
-                # Inyectar solución encontrada
                 if solution:
                     for k, v in solution.items():
                         if k != target:
