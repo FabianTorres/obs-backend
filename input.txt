@@ -24,5 +24,31 @@ Vx012836- Vx012837+ Vx013663+ Vx013664+ Vx013665+
 Vx013666+ Vx013719+ Vx013720+ Vx013721+ Vx013722} >P18 
        0; sino  
 
+delta = 1; Si POS {Vx010055-Vx010087} >P36 
+           0; si no. 
+
+xi= 1 ; Si POS {Vx011259- Vx011260}> P36 
+       0 ; si no. 
+
+eta = 1; Si POS {Vx010118-Vx010089+Vx012830-Vx012831 + 
+Vx014450- Vx014451} > P36 
+0; si no.
+
+zeta= 1; Si C152>0 
+0; si no. 
+ro= 1; si Mi+ delta+ xi+ eta>0 
+0; si no. 
+
+Valor 1= Vx014684 + Vx010145 + Vx010059 +Vx011930 + Vx012836 + 
+Vx012832 + Vx012946 + Vx012947 + Vx012948 + Vx013663+ Vx013664+ 
+Vx013665   + Vx013719 + Vx013720 + Vx013721 
+
+lambda = 1; si (Vx012946 + Vx012947 + Vx012948 + Vx012949 + Vx013663 
++ Vx013664 + Vx013665 + Vx013666 + Vx013719 + Vx013720 + Vx013721 
++ Vx013722) *(1-Mi) *(épsilon) > 0;  
+0; si no 
+
+valor 3= (Vx012956 + Vx013680 + Vx013736)
+
 <<<NORMAS>>>
 

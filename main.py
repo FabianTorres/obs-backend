@@ -1,6 +1,7 @@
 import os
 import json
 import re
+import traceback # Importante para ver errores completos
 from lark import Lark, UnexpectedCharacters, UnexpectedToken
 from app.parser.transformer import ObservacionTransformer
 from app.parser.normalizer import Normalizer
@@ -80,11 +81,6 @@ if __name__ == "__main__":
             else:
                 f.write("✅ Documento procesado sin incidencias.")
         
-        if critical_count > 0:
-            print(f"\n❌ SE DETECTARON {critical_count} ERRORES GRAVES DE SINTAXIS.")
-        elif normalizer.report:
-            print(f"\n⚠️  Se detectaron {len(normalizer.report)} advertencias menores.\n")
-        
         # ENSAMBLAJE DEL TEXTO MAESTRO
         texto_maestro = ""
         if clean_cond: texto_maestro += f"Condición de Entrada: {clean_cond}\n\n"
@@ -106,49 +102,62 @@ if __name__ == "__main__":
         transformer = ObservacionTransformer()
         datos_arbol = transformer.transform(arbol_bruto)
 
-        # 2. PROCESAR MACROS GLOBALES (NUEVO)
-        print("🌍 Procesando Definiciones Globales...")
+        # 2. PROCESAR MACROS GLOBALES (FIXED)
+        print("\n🌍 Procesando Definiciones Globales...")
         parsed_macros = {}
-        # Usamos el mismo parser para entender las fórmulas globales
-        # Para parsear una fórmula aislada, podemos envolverla en una estructura ficticia
-        # O simplemente usar el parser y extraer la lógica.
         
         for name, formula in GLOBAL_DEFINITIONS.items():
             try:
-                # Truco: Creamos una instrucción ficticia "MACRO = FORMULA" para que el parser la acepte
-                # Y usamos el clean_section para asegurar consistencia (quitar espacios raros, etc)
-                clean_formula = normalizer.clean_section(f"{name} = {formula}", context_name=f"Macro {name}")
-                # El clean_section puede devolver saltos de línea, tomamos lo que sirva
+                # 1. Normalización
+                raw_input = f"{name} = {formula}"
+                clean_formula = normalizer.clean_section(raw_input, context_name=f"Macro {name}")
                 clean_formula = clean_formula.strip()
                 
-                # Parseamos como si fuera una variable
-                macro_tree = parser.parse(f"Variables:\n{clean_formula}")
-                macro_data = transformer.transform(macro_tree)
+                if not clean_formula: continue
+
+                # 2. Parseo
+                macro_text = f"Variables:\n{clean_formula}"
+                macro_tree = parser.parse(macro_text)
                 
-                # El transformer devuelve una lista de instrucciones en la sección 'variables'
-                # macro_data = {'variables': [{'target': 'BGLO', 'logic': {...}}], ...}
-                if "variables" in macro_data and macro_data["variables"]:
-                    logic_node = macro_data["variables"][0]["logic"]
-                    parsed_macros[name] = logic_node
+                # 3. Transformación
+                macro_data_list = transformer.transform(macro_tree)
+                
+                # 4. Extracción Correcta (Manejo de Lista de Secciones)
+                logic_found = None
+                
+                # Iteramos sobre las secciones encontradas (usualmente solo una: Variables)
+                for section in macro_data_list:
+                    if section.get('section') == 'Variables':
+                        # Iteramos sobre las variables dentro de la sección
+                        for var_item in section.get('content', []):
+                            if var_item.get('target') == name:
+                                logic_found = var_item.get('logic')
+                                break
+                    if logic_found: break
+                
+                if logic_found:
+                    parsed_macros[name] = logic_found
+                    # print(f"   ✅ {name} cargada.")
+                else:
+                    print(f"   ⚠️ FALLO: No se pudo extraer la lógica para {name}.")
+
             except Exception as e:
-                print(f"⚠️  Error procesando macro {name}: {e}")
+                print(f"   ❌ ERROR en {name}: {e}")
+
+        print(f"🐛 [DEBUG] Macros cargadas: {len(parsed_macros)}")
 
         # GENERACIÓN
         scanner = VariableScanner()
         scanner.scan(datos_arbol)
 
-        # --- NUEVO: ESCANEAR TAMBIÉN LAS MACROS ---
         print("🔍 Escaneando variables en macros globales...")
         for macro_name, macro_logic in parsed_macros.items():
-            # Creamos una estructura ficticia para que el scanner la entienda
-            # Simulamos que es una regla: "MACRO = LOGICA"
             dummy_structure = {
                 "variables": [
                     {"target": macro_name, "logic": macro_logic}
                 ]
             }
             scanner.scan(dummy_structure)
-        # ------------------------------------------
         
         reporte_vars = scanner.get_report()
 
